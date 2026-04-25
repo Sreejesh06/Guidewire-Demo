@@ -265,20 +265,20 @@
         .terminal {
             width: 100%;
             max-width: 800px;
-            background: #1a1a1a;
+            background: #fff;
+            border: 2px solid var(--text);
             border-radius: 4px;
             padding: 2rem;
             text-align: left;
             font-family: var(--font-mono);
             font-size: 0.9rem;
             line-height: 1.6;
-            color: #00ff88;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            color: var(--text);
             margin: 0 auto;
         }
 
         .term-line { opacity: 0; margin-bottom: 4px; }
-        .term-cursor { display: inline-block; width: 8px; height: 16px; background: #00ff88; animation: blink 1s infinite; }
+        .term-cursor { display: inline-block; width: 8px; height: 16px; background: var(--text); animation: blink 1s infinite; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
         /* Panel 4: Part-timer logic */
@@ -327,15 +327,69 @@
 
         .ticker-wrap { display: inline-block; animation: ticker 25s linear infinite; }
 
+        /* H3 Choice Visuals */
+        .h3-comparison {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 4rem;
+            max-width: 900px;
+        }
+        .shape-box {
+            border: 1px solid var(--gray);
+            padding: 1.5rem;
+            background: #fff;
+            position: relative;
+        }
+        .shape-box.highlight { border-color: var(--accent); border-width: 2px; }
+        .shape-box h4 { font-size: 0.7rem; text-transform: uppercase; margin-bottom: 1rem; color: #888; }
+        .shape-box .reason { font-size: 0.65rem; color: var(--text); line-height: 1.4; margin-top: 1rem; }
+        
+        .geo-viz {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Square */
+        .viz-square { width: 80px; height: 80px; border: 2px solid var(--text); position: relative; }
+        .viz-square::after { 
+            content: ''; position: absolute; top: 50%; left: 50%; width: 4px; height: 4px; 
+            background: var(--text); border-radius: 50%; transform: translate(-50%, -50%); 
+        }
+        .dist-line { position: absolute; background: var(--accent-muted); z-index: 1; }
+        .dist-label { position: absolute; font-size: 0.5rem; font-weight: 800; color: var(--accent-muted); }
+
+        /* Circle */
+        .viz-circles { display: grid; grid-template-columns: 40px 40px; gap: 2px; }
+        .v-circle { width: 40px; height: 40px; border: 2px solid var(--text); border-radius: 50%; }
+        .gap-highlight { 
+            position: absolute; width: 10px; height: 10px; background: #ff4d4d; 
+            border-radius: 50%; z-index: 2; animation: pulse 2s infinite;
+        }
+
+        /* Hexagon */
+        .viz-hexes { position: relative; width: 40px; height: 46px; }
+        .v-hex {
+            width: 40px; height: 46px; background: #eeebe6; border: 1px solid var(--text);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            position: absolute;
+        }
+        
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.5; } }
+
         @media (max-width: 768px) {
-            .weather-visuals, .rider-comparison { flex-direction: column; align-items: center; }
+            .weather-visuals, .rider-comparison, .h3-comparison { flex-direction: column; align-items: center; }
             .terminal { font-size: 0.7rem; padding: 1rem; }
         }
     </style>
 </head>
 <body>
     <div class="grid-overlay"></div>
-    <a href="home.html" class="nav-back">← EXIT TO HUB</a>
+    <a href="index.html" class="nav-back">← EXIT TO HUB</a>
+    <a href="actuary.html" class="nav-back" style="left: auto; right: 2rem;">NEXT: ACTUARIAL INTELLIGENCE →</a>
 
     <!-- Panel 0: Opening -->
     <section id="panel0">
@@ -350,6 +404,39 @@
             <div class="visual-container">
                 <div class="hex-map" id="hexMap"></div>
             </div>
+            <div class="h3-comparison visual-container">
+                <div class="shape-box">
+                    <h4>Squares</h4>
+                    <div class="geo-viz">
+                        <div class="viz-square">
+                            <div class="dist-line" style="width: 40px; height: 1px; top: 50%; left: 50%;"></div>
+                            <div class="dist-label" style="top: 35%; left: 60%;">1.0</div>
+                            <div class="dist-line" style="width: 56px; height: 1px; top: 50%; left: 50%; transform: rotate(-45deg); transform-origin: top left;"></div>
+                            <div class="dist-label" style="top: 20%; left: 75%;">1.41</div>
+                        </div>
+                    </div>
+                    <p class="reason">Unequal distance to neighbors. Corners are 41% further than sides. Inconsistent risk propagation.</p>
+                </div>
+                <div class="shape-box">
+                    <h4>Circles</h4>
+                    <div class="geo-viz">
+                        <div class="gap-highlight"></div>
+                        <div class="viz-circles">
+                            <div class="v-circle"></div><div class="v-circle"></div>
+                            <div class="v-circle"></div><div class="v-circle"></div>
+                        </div>
+                    </div>
+                    <p class="reason">Perfect distance, but zero tiling. Gaps between cells leave "blind spots" in geographic coverage.</p>
+                </div>
+                <div class="shape-box highlight">
+                    <h4>Hexagons (H3)</h4>
+                    <div class="geo-viz" id="hexViz">
+                        <!-- Hexagons will be positioned by script -->
+                    </div>
+                    <p class="reason">Perfect tiling. Equal distance between all adjacent centers. No gaps. The ideal geographic index.</p>
+                </div>
+            </div>
+
             <div class="key-notes">
                 <div class="note-item"><span>//</span> 0.46 SQ KM WARD FOOTPRINTS</div>
                 <div class="note-item"><span>//</span> HYPER-LOCAL RISK CLUSTERS</div>
@@ -426,14 +513,14 @@
     </section>
 
     <!-- Panel 3.5: Standalone Exactly-Once Beat -->
-    <section id="panel3-5" class="dark">
+    <section id="panel3-5">
         <div class="reveal" style="width: 100%;">
             <span class="mono-label">Reliability Engineering</span>
-            <h2 style="color: #fff;">EXACTLY-ONCE GUARANTEE.</h2>
+            <h2>EXACTLY-ONCE GUARANTEE.</h2>
             <div class="terminal visual-container" id="terminal">
                 <!-- Lines will be injected -->
             </div>
-            <p style="margin-top: 3rem; font-size: 0.9rem; color: rgba(255,255,255,0.6);">Simulated crash recovery: PayoutIdempotencyKey ensures rider is never double-paid.</p>
+            <p style="margin-top: 3rem; font-size: 0.9rem; color: rgba(18,18,18,0.6);">Simulated crash recovery: PayoutIdempotencyKey ensures rider is never double-paid.</p>
         </div>
     </section>
 
@@ -529,6 +616,23 @@
             const hex = document.createElement('div');
             hex.className = 'hex';
             hexMap.appendChild(hex);
+        }
+
+        // H3 Choice Hexes
+        const hexViz = document.getElementById('hexViz');
+        if (hexViz) {
+            const positions = [
+                {t: 50, l: 50}, // Center
+                {t: 20, l: 50}, {t: 35, l: 75}, {t: 65, l: 75}, 
+                {t: 80, l: 50}, {t: 65, l: 25}, {t: 35, l: 25}
+            ];
+            positions.forEach(pos => {
+                const h = document.createElement('div');
+                h.className = 'v-hex';
+                h.style.top = `calc(${pos.t}% - 23px)`;
+                h.style.left = `calc(${pos.l}% - 20px)`;
+                hexViz.appendChild(h);
+            });
         }
 
         // Observer

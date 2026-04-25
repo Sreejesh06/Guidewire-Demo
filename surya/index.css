@@ -528,31 +528,31 @@ body {
 
 /* Layer 8: Verdict */
 .verdict-phase { margin-top: 12rem; position: relative; z-index: 1;}
-.verdict-section { max-width: 1200px; margin: 0 auto; display: block; height: 600px; position: relative; background: #fff; border: 2px solid var(--text-main); margin-bottom: 5rem; }
+.verdict-section { max-width: 1200px; margin: 0 auto; display: block; height: 600px; position: relative; background: var(--bg-base); border: 1px solid var(--text-main); margin-bottom: 5rem; }
 #ml-canvas { width: 100%; height: 100%; position: absolute; inset: 0; z-index: 0; }
 .ml-overlay { position: absolute; inset: 0; z-index: 1; display: flex; padding: 4rem; justify-content: space-between; pointer-events: none; }
-.ml-info { width: 40%; color: #000; }
-.ml-title { font-family: var(--font-heading); font-size: 3rem; margin-bottom: 1rem; text-transform: uppercase; color: #000; }
-.ml-desc { color: #333; font-size: 1rem; margin-bottom: 3rem; font-family: var(--font-mono); font-weight: 600; }
+.ml-info { width: 40%; color: var(--text-main); }
+.ml-title { font-family: var(--font-heading); font-size: 3rem; margin-bottom: 1rem; text-transform: uppercase; }
+.ml-desc { color: var(--text-dim); font-size: 1rem; margin-bottom: 3rem; font-family: var(--font-mono); }
 .model-votes { display: flex; flex-direction: column; gap: 1.5rem; }
 .vote-row { display: flex; align-items: center; gap: 1rem; }
-.vote-name { font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; width: 110px; text-transform: uppercase; color: #000; }
-.vote-bar { flex: 1; height: 2px; background: #ddd; position: relative;}
-.vote-fill { position: absolute; top: -2px; left: 0; height: 6px; width: 0; background: #000; transition: width 1.5s cubic-bezier(0.2,0.8,0.2,1); }
-.vote-pct { font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; width: 50px; text-align: right; color: #000; }
+.vote-name { font-family: var(--font-mono); font-size: 0.8rem; font-weight: 600; width: 100px; text-transform: uppercase;}
+.vote-bar { flex: 1; height: 1px; background: var(--gray); position: relative;}
+.vote-fill { position: absolute; top: -2px; left: 0; height: 5px; width: 0; background: var(--text-main); transition: width 1.5s cubic-bezier(0.2,0.8,0.2,1); }
+.vote-pct { font-family: var(--font-mono); font-size: 0.8rem; font-weight: 600; width: 40px; text-align: right; }
 
-.terminal-block { width: 45%; background: #eeeeee; border: 2px solid var(--text-main); display: flex; flex-direction: column; pointer-events: auto;}
-.terminal-header { padding: 1rem; border-bottom: 2px solid var(--text-main); display: flex; align-items: center; gap: 8px; }
+.terminal-block { width: 45%; background: #fff; border: 1px solid var(--text-main); display: flex; flex-direction: column; }
+.terminal-header { padding: 1rem; border-bottom: 1px solid var(--text-main); display: flex; align-items: center; gap: 8px; }
 .t-dot { width: 12px; height: 12px; background: #333; }
 .t-dot:nth-child(1) { background: var(--accent-red); }
 .t-dot:nth-child(2) { background: var(--accent-yellow); }
 .t-dot:nth-child(3) { background: var(--accent); }
-.t-title { font-family: var(--font-mono); font-size: 0.8rem; color: #000; margin-left: 10px; font-weight: 700; text-transform: uppercase;}
-.terminal-body { padding: 1.5rem; flex: 1; font-family: var(--font-mono); font-size: 0.8rem; color: #000; overflow: hidden; line-height: 1.6; font-weight: 600;}
+.t-title { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-dim); margin-left: 10px; font-weight: 600; text-transform: uppercase;}
+.terminal-body { padding: 1.5rem; flex: 1; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-main); overflow: hidden; line-height: 1.6;}
 .t-line { margin-bottom: 0.5rem; opacity: 0; transform: translateY(10px); }
-.t-line.dim { color: #666; }
-.verdict-line { margin-top: 2rem; font-size: 1rem; color: #000; font-weight: bold; }
-.verdict-text { color: var(--accent-red); font-weight: 800; }
+.t-line.dim { color: var(--text-dim); }
+.verdict-line { margin-top: 2rem; font-size: 1rem; color: var(--text-main); font-weight: bold; }
+.verdict-text { color: var(--accent-red); }
 
 /* RECAP */
 .recap-section { background: var(--bg-base); padding: 8rem 2rem; border-top: 1px solid var(--text-main); position: relative; z-index: 1;}
