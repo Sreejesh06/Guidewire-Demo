@@ -14,45 +14,46 @@
     position: absolute;
     pointer-events: none;
     z-index: 10000;
-    transition: transform 0.1s linear;
+    transition: left 0.15s ease-out, top 0.15s ease-out;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 4px;
+    align-items: flex-start;
   }
-  .cursor-dot {
-    width: 12px;
-    height: 12px;
-    background: var(--blue-600);
-    border: 2px solid #fff;
-    border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  .cursor-pointer {
+    width: 20px;
+    height: 20px;
+    color: var(--cursor-color, #2563EB);
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
   }
   .cursor-label {
-    background: rgba(0,0,0,0.75);
+    background: var(--cursor-color, #2563EB);
     color: #fff;
-    font-size: 10px;
-    padding: 2px 6px;
+    font-size: 11px;
+    padding: 3px 8px;
     border-radius: 4px;
+    border-top-left-radius: 0;
     white-space: nowrap;
     font-weight: 600;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    margin-top: -2px;
+    margin-left: 10px;
   }
   
   /* Click Ripple */
   .click-ripple {
     position: absolute;
-    width: 20px;
-    height: 20px;
-    border: 2px solid var(--blue-600);
+    width: 24px;
+    height: 24px;
+    border: 3px solid var(--ripple-color, #2563EB);
     border-radius: 50%;
     transform: translate(-50%, -50%);
     pointer-events: none;
-    animation: ripple 0.6s ease-out forwards;
+    animation: ripple 0.8s cubic-bezier(0, 0.2, 0.8, 1) forwards;
     z-index: 9999;
   }
   @keyframes ripple {
-    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
-    100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+    0% { transform: translate(-50%, -50%) scale(0.1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
   }
 </style>
 <style>
@@ -1031,8 +1032,12 @@
   let peer = null;
   let connections = [];
   let myId = null;
+  let myName = null;
+  let myColor = null;
   let remoteCursors = {};
   let collabActive = false;
+
+  const PEER_COLORS = ['#2563EB', '#D97706', '#0891B2', '#EA580C', '#4F46E5', '#059669', '#DC2626', '#7C3AED'];
 
   function toggleCollaboration() {
     if (collabActive) {
@@ -1044,6 +1049,12 @@
 
   function startCollaboration() {
     if (peer) return;
+
+    // Get User Name
+    myName = prompt("Enter your name for collaboration:", "User-" + Math.floor(Math.random() * 1000));
+    if (!myName) myName = "Anonymous";
+    
+    myColor = PEER_COLORS[Math.floor(Math.random() * PEER_COLORS.length)];
 
     // Use hash as room ID or generate one
     let roomId = window.location.hash.substring(1);
@@ -1062,10 +1073,7 @@
     peer = new Peer(peerId, {
       debug: 1,
       config: {
-        'iceServers': [
-          { url: 'stun:stun.l.google.com:19302' },
-          { url: 'stun:stun1.l.google.com:19302' }
-        ]
+        'iceServers': [{ url: 'stun:stun.l.google.com:19302' }]
       }
     });
 
@@ -1077,7 +1085,9 @@
       
       if (isJoining) {
         console.log('🔗 Attempting to connect to host...');
-        const conn = peer.connect(`aegis-${roomId}-host`);
+        const conn = peer.connect(`aegis-${roomId}-host`, {
+          metadata: { name: myName, color: myColor }
+        });
         setupConnection(conn);
       } else {
         showCollabStatus('✓ Collaboration host active! Share the URL.');
@@ -1086,10 +1096,6 @@
 
     peer.on('connection', (conn) => {
       setupConnection(conn);
-      // Bi-directional connection for guests
-      if (id.includes('-host')) {
-        // Host broadcasts new peer to others? No, simple star topology is fine.
-      }
     });
 
     peer.on('error', (err) => {
@@ -1131,15 +1137,25 @@
     conn.on('open', () => {
       connections.push(conn);
       console.log('👋 Peer connected:', conn.peer);
-      showCollabStatus('👋 User joined');
+      showCollabStatus(`👋 ${conn.metadata?.name || 'Someone'} joined`);
       updateParticipantCount();
       
-      // Send current state
-      conn.send({ type: 'sync-state', simRunning: simRunning });
+      // Send initial sync
+      conn.send({ 
+        type: 'sync-state', 
+        simRunning: simRunning,
+        name: myName,
+        color: myColor
+      });
     });
 
     conn.on('data', (data) => {
       handlePeerData(data, conn.peer);
+      
+      // Relay logic: Host relays guest events to all other guests
+      if (myId.includes('-host')) {
+        relay(data, conn.peer);
+      }
     });
 
     conn.on('close', () => {
@@ -1150,39 +1166,65 @@
     });
   }
 
+  function relay(data, senderId) {
+    // Only relay certain types to avoid loops and congestion
+    if (['cursor', 'click', 'simulation-start', 'scroll', 'pipeline-scroll'].includes(data.type)) {
+      connections.forEach(conn => {
+        if (conn.peer !== senderId && conn.open) {
+          conn.send(data);
+        }
+      });
+    }
+  }
+
+  let isRemoteAction = false;
+
   function handlePeerData(data, peerId) {
     switch (data.type) {
       case 'cursor':
-        updateRemoteCursor(peerId, data.x, data.y, data.name);
+        updateRemoteCursor(peerId, data.x, data.y, data.name, data.color);
         break;
       case 'scroll':
+        isRemoteAction = true;
         window.scrollTo({ top: data.y, behavior: 'auto' });
+        // Release lock after a short delay to allow the scroll event to fire and be ignored
+        setTimeout(() => { isRemoteAction = false; }, 50);
         break;
       case 'pipeline-scroll':
         const flow = document.getElementById('pipelineFlow');
-        if (flow) flow.scrollLeft = data.scrollLeft;
+        if (flow) {
+          isRemoteAction = true;
+          flow.scrollLeft = data.scrollLeft;
+          setTimeout(() => { isRemoteAction = false; }, 50);
+        }
         break;
       case 'simulation-start':
         if (!simRunning) {
-          showCollabStatus('🎬 Teammate started simulation');
+          showCollabStatus(`🎬 ${data.name || 'Teammate'} started simulation`);
           startSimulation();
         }
         break;
       case 'click':
-        showClickRipple(data.x, data.y);
+        showClickRipple(data.x, data.y, data.color);
         break;
     }
   }
 
   function setupTracking() {
-    // Track Mouse
+    // Track Mouse with Throttling
+    let lastMove = 0;
     document.addEventListener('mousemove', (e) => {
       if (!collabActive) return;
+      const now = Date.now();
+      if (now - lastMove < 30) return; 
+      lastMove = now;
+
       broadcast({
         type: 'cursor',
         x: e.pageX,
         y: e.pageY,
-        name: 'User'
+        name: myName,
+        color: myColor
       });
     });
 
@@ -1192,24 +1234,36 @@
       broadcast({
         type: 'click',
         x: e.pageX,
-        y: e.pageY
+        y: e.pageY,
+        color: myColor
       });
     });
 
-    // Track Scroll
+    // Track Scroll with Loop Protection and Throttling
+    let lastScroll = 0;
     window.addEventListener('scroll', () => {
-      if (!collabActive) return;
+      if (!collabActive || isRemoteAction) return;
+      
+      const now = Date.now();
+      if (now - lastScroll < 50) return;
+      lastScroll = now;
+
       broadcast({
         type: 'scroll',
         y: window.scrollY
       });
     }, { passive: true });
 
-    // Pipeline scroll already handled in broadcast logic if we add it there
     const flowContainer = document.getElementById('pipelineFlow');
     if (flowContainer) {
+      let lastFlowScroll = 0;
       flowContainer.addEventListener('scroll', () => {
-        if (!collabActive) return;
+        if (!collabActive || isRemoteAction) return;
+        
+        const now = Date.now();
+        if (now - lastFlowScroll < 50) return;
+        lastFlowScroll = now;
+
         broadcast({
           type: 'pipeline-scroll',
           scrollLeft: flowContainer.scrollLeft
@@ -1225,15 +1279,21 @@
     });
   }
 
-  function updateRemoteCursor(id, x, y, name) {
+  function updateRemoteCursor(id, x, y, name, color) {
     let cursor = remoteCursors[id];
     if (!cursor) {
       cursor = document.createElement('div');
       cursor.className = 'remote-cursor';
-      cursor.innerHTML = `<div class="cursor-dot"></div><div class="cursor-label">${name}</div>`;
+      cursor.innerHTML = `
+        <svg class="cursor-pointer" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M5.653 3.123l13.793 8.924c.76.49.76 1.614 0 2.104l-13.793 8.924c-.819.53-1.847-.113-1.751-1.09l1.107-11.235-1.107-11.235c-.096-.977.932-1.62 1.751-1.09z"/>
+        </svg>
+        <div class="cursor-label">${name}</div>
+      `;
       document.body.appendChild(cursor);
       remoteCursors[id] = cursor;
     }
+    cursor.style.setProperty('--cursor-color', color || '#2563EB');
     cursor.style.left = x + 'px';
     cursor.style.top = y + 'px';
   }
@@ -1245,13 +1305,14 @@
     }
   }
 
-  function showClickRipple(x, y) {
+  function showClickRipple(x, y, color) {
     const ripple = document.createElement('div');
     ripple.className = 'click-ripple';
+    ripple.style.setProperty('--ripple-color', color || '#2563EB');
     ripple.style.left = x + 'px';
     ripple.style.top = y + 'px';
     document.body.appendChild(ripple);
-    setTimeout(() => ripple.remove(), 600);
+    setTimeout(() => ripple.remove(), 800);
   }
 
   function updateParticipantCount() {
@@ -1296,10 +1357,6 @@
     if (roomId && !roomId.startsWith('togetherjs=')) {
       console.log('🔗 Room ID found in URL, initializing PeerJS...');
       startCollaboration();
-      
-      // For a real P2P connection, we need to know who to connect to.
-      // In a production app, we'd use a small signaling server.
-      // For this demo, we can simulate the connection if we had a peer list.
     }
   });
 
@@ -1307,7 +1364,7 @@
   const originalStartSimulation = startSimulation;
   startSimulation = async function() {
     if (collabActive) {
-      broadcast({ type: 'simulation-start' });
+      broadcast({ type: 'simulation-start', name: myName });
     }
     return originalStartSimulation.apply(this, arguments);
   };
