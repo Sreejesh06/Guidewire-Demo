@@ -6,22 +6,47 @@
 <title>Aegis — Live System Demo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<!-- TogetherJS Configuration: Must be defined BEFORE loading the script -->
 <script>
-  // Configure TogetherJS before it loads
-  var TogetherJSConfig_on = {
-    ready: function() { onTogetherJSReady(); },
-    close: function() { onTogetherJSClose(); }
+  // TogetherJS Configuration: Must be defined BEFORE loading the script
+  // Documentation: https://togetherjs.com/docs/
+
+  // CRITICAL: Basic Configuration
+  var TogetherJSConfig_siteName = "Aegis Platform";
+  var TogetherJSConfig_toolName = "Aegis Collaboration";
+  
+  // CRITICAL: Hub Base - Using the most stable hub endpoint
+  var TogetherJSConfig_hubBase = "https://hub.togetherjs.com";
+  
+  // CRITICAL: Interaction Sync
+  var TogetherJSConfig_dontShowClicks = false; // Show click indicators (visual dots)
+  var TogetherJSConfig_cloneForms = true;      // Sync form inputs
+  
+  // CRITICAL: Session Management
+  var TogetherJSConfig_includeHashInUrl = true; // Use URL hash for session ID (required for sharing links)
+  var TogetherJSConfig_suppressInvite = false;   // Allow invitations
+  var TogetherJSConfig_suppressJoinConfirmation = false;
+  
+  // User Identification
+  var TogetherJSConfig_getUserName = function() {
+    return "User-" + Math.floor(Math.random() * 1000);
   };
-  // Enable all collaboration features explicitly
-  TogetherJSConfig_enableCursor = true;
-  TogetherJSConfig_enableScrollSync = true;
-  TogetherJSConfig_enableClickSync = true;
-  // Set a unique hub URL to avoid conflicts
-  TogetherJSConfig_hubBase = "https://hub.togetherjs.com";
-  // Disable analytics for privacy
-  TogetherJSConfig_dontShowClicks = false;
+  
+  // Event Hooks
+  var TogetherJSConfig_on = {
+    ready: function() { 
+      console.log('🚀 TogetherJS Ready');
+      if (typeof onTogetherJSReady === 'function') onTogetherJSReady(); 
+    },
+    close: function() { 
+      console.log('🛑 TogetherJS Closed');
+      if (typeof onTogetherJSClose === 'function') onTogetherJSClose(); 
+    }
+  };
+
+  // Optimization
+  var TogetherJSConfig_useMinimizedCode = true;
 </script>
+<!-- Using a reliable CDN for TogetherJS -->
 <script src="https://togetherjs.com/togetherjs-min.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -522,7 +547,16 @@
     transition: var(--transition);
   }
   .floating-btn:hover { background: var(--blue-700); transform: scale(1.02); }
-  .floating-btn.active { background: var(--emerald-600); box-shadow: 0 4px 16px rgba(5,150,105,0.3); }
+  .floating-btn.active { 
+    background: var(--emerald-600); 
+    box-shadow: 0 4px 16px rgba(5,150,105,0.3);
+    animation: pulse-btn 2s infinite;
+  }
+
+  @keyframes pulse-btn {
+    0%, 100% { box-shadow: 0 4px 16px rgba(5,150,105,0.3); }
+    50% { box-shadow: 0 4px 24px rgba(5,150,105,0.5); }
+  }
 
   .floating-status {
     background: rgba(0,0,0,0.75);
@@ -888,6 +922,17 @@
     if (simRunning) return;
     simRunning = true;
 
+    console.log('🎬 Starting simulation...');
+
+    // ═══════════════════════════════════════════════════════════
+    // CRITICAL: Broadcast simulation start to all collaborators
+    // This ensures all connected users see the animation simultaneously
+    // ═══════════════════════════════════════════════════════════
+    if (collabActive && typeof TogetherJS !== 'undefined' && TogetherJS.running) {
+      console.log('📡 Broadcasting simulation-start event to all peers');
+      TogetherJS.send({type: "simulation-start"});
+    }
+
     const btn = document.getElementById('startBtn');
     btn.disabled = true;
     btn.innerHTML = '<span>&#9632;</span> Running...';
@@ -978,16 +1023,12 @@
   // ── Collaboration (TogetherJS) ──
   let collabActive = false;
 
-  // Check if HTTPS is being used (required for production)
-  function checkHTTPS() {
-    if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-      console.warn('⚠️ TogetherJS works best over HTTPS. Some features may not work on HTTP in production.');
-    }
-  }
-
   function toggleCollaboration() {
-    checkHTTPS();
-    // TogetherJS() toggles the session on/off automatically
+    if (typeof TogetherJS === 'undefined') {
+      alert('TogetherJS library failed to load. Please check your internet connection.');
+      return;
+    }
+    // TogetherJS() toggles the session
     TogetherJS();
   }
 
@@ -995,12 +1036,61 @@
   function onTogetherJSReady() {
     collabActive = true;
     setCollabUI(true);
-    showCollabStatus('✓ Collaboration active! Share this URL with others.');
     
-    // Force enable cursor tracking
-    if (TogetherJS.config) {
-      TogetherJS.config('enableCursor', true);
-      TogetherJS.config('enableScrollSync', true);
+    console.log('🚀 TogetherJS session established');
+    
+    // 1. Initial participant count
+    updateParticipantCount();
+    
+    // 2. Listen for custom simulation events
+    // TogetherJS.hub.on handles custom messages between clients
+    TogetherJS.hub.on("simulation-start", function(msg) {
+      // Ignore if it's from ourselves (TogetherJS usually filters this, but good to be safe)
+      if (msg.hello) return; 
+      
+      console.log('📨 Received simulation-start from peer:', msg.clientId);
+      
+      if (!simRunning) {
+        showCollabStatus('🎬 Teammate started simulation');
+        startSimulation();
+      }
+    });
+
+    // 3. Listen for peer events to update UI
+    // 'togetherjs.hello' fires when a new person joins
+    TogetherJS.hub.on("togetherjs.hello", function(msg) {
+      console.log('👋 Peer joined:', msg.name || 'Anonymous');
+      showCollabStatus(`👋 ${msg.name || 'Someone'} joined`);
+      updateParticipantCount();
+    });
+
+    // 'togetherjs.bye' fires when someone leaves
+    TogetherJS.hub.on("togetherjs.bye", function(msg) {
+      console.log('👋 Peer left');
+      showCollabStatus(`👋 A peer left`);
+      updateParticipantCount();
+    });
+
+    // 4. Custom Scroll Sync for Pipeline Flow
+    const flowContainer = document.getElementById('pipelineFlow');
+    if (flowContainer) {
+      // Broadcast scroll position
+      flowContainer.addEventListener('scroll', function() {
+        if (collabActive && TogetherJS.running) {
+          TogetherJS.send({
+            type: "pipeline-scroll",
+            scrollLeft: flowContainer.scrollLeft
+          });
+        }
+      }, { passive: true });
+
+      // Receive scroll position
+      TogetherJS.hub.on("pipeline-scroll", function(msg) {
+        if (msg.hello) return;
+        if (flowContainer) {
+          flowContainer.scrollLeft = msg.scrollLeft;
+        }
+      });
     }
   }
 
@@ -1009,37 +1099,65 @@
     collabActive = false;
     setCollabUI(false);
     showCollabStatus('Collaboration ended.');
+    console.log('🛑 TogetherJS session closed');
+  }
+
+  function updateParticipantCount() {
+    try {
+      if (TogetherJS.running) {
+        // Use TogetherJS.require to access internal modules
+        const peers = TogetherJS.require("peers");
+        const count = peers.getAllPeers().length + 1; // Peers + self
+        const text = document.getElementById('sessionText');
+        if (text) text.textContent = `Live Session: ${count} user${count > 1 ? 's' : ''}`;
+        console.log(`👥 Total participants: ${count}`);
+      }
+    } catch(e) {
+      console.warn('Could not update participant count:', e);
+    }
   }
 
   function setCollabUI(active) {
     const pill = document.getElementById('sessionStatus');
     const text = document.getElementById('sessionText');
     const fBtn = document.getElementById('floatingBtn');
+    const hBtn = document.querySelector('.collab-btn');
 
     if (active) {
       pill.classList.add('active');
       text.textContent = 'Live Session: ON';
       fBtn.classList.add('active');
       fBtn.innerHTML = '&#128308; End Collaboration';
+      if (hBtn) hBtn.innerHTML = '<span class="collab-icon">&#128308;</span> Stop Collaboration';
     } else {
       pill.classList.remove('active');
       text.textContent = 'Live Session: OFF';
       fBtn.classList.remove('active');
       fBtn.innerHTML = '&#128640; Start Live Collaboration';
+      if (hBtn) hBtn.innerHTML = '<span class="collab-icon">&#128640;</span> Start Live Collaboration';
     }
   }
 
   function showCollabStatus(msg) {
     const el = document.getElementById('floatingStatus');
-    el.textContent = msg;
-    el.classList.add('show');
-    setTimeout(() => el.classList.remove('show'), 3000);
+    if (el) {
+      el.textContent = msg;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 4000);
+    }
   }
 
-  // Ensure TogetherJS is loaded before allowing interaction
+  // Initialization check
   window.addEventListener('load', () => {
     if (typeof TogetherJS === 'undefined') {
-      console.error('❌ TogetherJS failed to load. Check your internet connection.');
+      console.error('❌ TogetherJS failed to load.');
+      const btn = document.querySelector('.collab-btn');
+      if (btn) {
+        btn.style.opacity = '0.5';
+        btn.title = 'TogetherJS library not found';
+      }
+    } else {
+      console.log('✅ TogetherJS script loaded');
     }
   });
 </script>
