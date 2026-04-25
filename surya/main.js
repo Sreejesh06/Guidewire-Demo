@@ -1,0 +1,456 @@
+// Register GSAP ScrollTrigger
+gsap.registerPlugin(ScrollTrigger);
+
+// --- HERO CANVAS (Three.js Particles) ---
+function initHeroCanvas() {
+    const canvas = document.getElementById('hero-canvas');
+    if(!canvas) return;
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const particlesGeometry = new THREE.BufferGeometry();
+    const particlesCount = 2000;
+    const posArray = new Float32Array(particlesCount * 3);
+
+    for(let i = 0; i < particlesCount * 3; i++) {
+        posArray[i] = (Math.random() - 0.5) * 12;
+    }
+
+    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    const material = new THREE.PointsMaterial({
+        size: 0.02,
+        color: 0x00ff88,
+        transparent: true,
+        opacity: 0.6,
+        blending: THREE.AdditiveBlending
+    });
+
+    const particlesMesh = new THREE.Points(particlesGeometry, material);
+    scene.add(particlesMesh);
+    camera.position.z = 4;
+
+    function animate() {
+        requestAnimationFrame(animate);
+        particlesMesh.rotation.y += 0.0008;
+        particlesMesh.rotation.x += 0.0004;
+        renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+}
+initHeroCanvas();
+
+// --- GLOBAL GSAP ANIMATIONS ---
+// Hero text animations
+gsap.from('.hero-eyebrow', { opacity: 0, y: 20, duration: 1, delay: 0.2 });
+gsap.from('.hero-headline .line', { opacity: 0, y: 50, duration: 1, stagger: 0.2, delay: 0.4, ease: "power3.out" });
+gsap.from('.hero-sub', { opacity: 0, duration: 1, delay: 1 });
+gsap.from('.hero-stats', { opacity: 0, y: 30, duration: 1, delay: 1.2 });
+
+// Stats counting
+document.querySelectorAll('.stat-num').forEach(el => {
+    const target = parseFloat(el.getAttribute('data-target'));
+    const isDecimal = target % 1 !== 0;
+    gsap.to(el, {
+        innerHTML: target,
+        duration: 2,
+        delay: 1.5,
+        snap: { innerHTML: isDecimal ? 0.01 : 1 },
+        onUpdate: function() {
+            if(isDecimal) el.innerHTML = Number(el.innerHTML).toFixed(2);
+        }
+    });
+});
+
+// Sections fade in
+gsap.utils.toArray('.phase-header').forEach(header => {
+    gsap.from(header, {
+        scrollTrigger: { trigger: header, start: "top 80%" },
+        opacity: 0, y: 50, duration: 1
+    });
+});
+
+gsap.utils.toArray('.layer-section').forEach(layer => {
+    gsap.from(layer.querySelector('.layer-visual-wrap'), {
+        scrollTrigger: { trigger: layer, start: "top 70%" },
+        opacity: 0, x: layer.querySelector('.reverse') ? 50 : -50, duration: 1, ease: "power3.out"
+    });
+    gsap.from(layer.querySelector('.layer-info'), {
+        scrollTrigger: { trigger: layer, start: "top 70%" },
+        opacity: 0, x: layer.querySelector('.reverse') ? -50 : 50, duration: 1, ease: "power3.out", delay: 0.2
+    });
+});
+
+// --- LAYER 1: SINE WAVE & SHAKE ---
+const sineCanvas = document.getElementById('sine-canvas');
+if (sineCanvas) {
+    const sCtx = sineCanvas.getContext('2d');
+    let sWidth = sineCanvas.width = sineCanvas.offsetWidth;
+    let sHeight = sineCanvas.height = sineCanvas.offsetHeight;
+    let time = 0;
+
+    function drawSine() {
+        sCtx.clearRect(0, 0, sWidth, sHeight);
+        sCtx.beginPath();
+        sCtx.strokeStyle = '#00ff88';
+        sCtx.lineWidth = 2;
+        for(let i=0; i<sWidth; i++) {
+            const y = sHeight/2 + Math.sin(i * 0.05 + time) * 15 + (Math.random() * 4 - 2); // Add chaotic noise
+            if(i===0) sCtx.moveTo(i, y);
+            else sCtx.lineTo(i, y);
+        }
+        sCtx.stroke();
+        time += 0.1;
+        requestAnimationFrame(drawSine);
+    }
+    drawSine();
+
+    ScrollTrigger.create({
+        trigger: '#layer1',
+        start: "top center",
+        onEnter: () => {
+            gsap.to('#phone-shake', {
+                x: "random(-8, 8)", y: "random(-4, 4)",
+                duration: 0.06, yoyo: true, repeat: 15
+            });
+        }
+    });
+}
+
+// --- LAYER 2: ATMOS RAIN ---
+const rainCanvas = document.getElementById('rain-canvas');
+if (rainCanvas) {
+    const rCtx = rainCanvas.getContext('2d');
+    rainCanvas.width = rainCanvas.offsetWidth || 300;
+    rainCanvas.height = rainCanvas.offsetHeight || 300;
+    const drops = [];
+    for(let i=0; i<80; i++) {
+        drops.push({ x: Math.random()*rainCanvas.width, y: Math.random()*rainCanvas.height, speed: 3 + Math.random()*4 });
+    }
+    function drawRain() {
+        rCtx.fillStyle = 'rgba(253,252,251,0.2)';
+        rCtx.fillRect(0,0,rainCanvas.width, rainCanvas.height);
+        rCtx.fillStyle = '#121212';
+        drops.forEach(d => {
+            rCtx.fillRect(d.x, d.y, 1, 15);
+            d.y += d.speed;
+            if(d.y > rainCanvas.height) { d.y = -15; d.x = Math.random()*rainCanvas.width; }
+        });
+        requestAnimationFrame(drawRain);
+    }
+    drawRain();
+
+    ScrollTrigger.create({
+        trigger: '#layer2',
+        start: "top center",
+        onEnter: () => {
+            const tl = gsap.timeline();
+            tl.to('#lightning-flash', { opacity: 0.8, duration: 0.05 })
+              .to('#lightning-flash', { opacity: 0, duration: 0.1 })
+              .to('#lightning-flash', { opacity: 0.5, duration: 0.05, delay: 0.1 })
+              .to('#lightning-flash', { opacity: 0, duration: 0.3 });
+        }
+    });
+}
+
+// --- LAYER 3: TEMPORAL CLOCKS ---
+function pad(num, size=2) { return ('000'+num).slice(-size); }
+const sClock = document.getElementById('server-clock');
+const cClock = document.getElementById('client-clock');
+if (sClock && cClock) {
+    function updateClocks() {
+        const now = new Date();
+        const serverStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}.${pad(now.getMilliseconds(), 3)}`;
+        sClock.innerText = serverStr;
+        
+        // Glitched client clock
+        const glitchNow = new Date(now.getTime() - 47300 + (Math.random()*2000 - 1000));
+        const clientStr = `${pad(glitchNow.getHours())}:${pad(glitchNow.getMinutes())}:${pad(glitchNow.getSeconds())}.${pad(glitchNow.getMilliseconds(), 3)}`;
+        cClock.innerText = clientStr;
+        
+        requestAnimationFrame(updateClocks);
+    }
+    updateClocks();
+}
+
+// --- LAYER 4: HEX GRID ---
+const hexGrid = document.getElementById('hex-grid');
+if (hexGrid) {
+    function createHex(x, y, r) {
+        let pts = [];
+        for(let i=0; i<6; i++) {
+            let angle_deg = 60 * i - 30;
+            let angle_rad = Math.PI / 180 * angle_deg;
+            pts.push(`${x + r * Math.cos(angle_rad)},${y + r * Math.sin(angle_rad)}`);
+        }
+        let p = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+        p.setAttribute("points", pts.join(" "));
+        p.setAttribute("class", "hex-poly");
+        return p;
+    }
+    for(let row=0; row<6; row++) {
+        for(let col=0; col<8; col++) {
+            let r = 25;
+            let x = r * 3/2 * col + 40;
+            let y = r * Math.sqrt(3) * (row + 0.5 * (col&1)) + 40;
+            hexGrid.appendChild(createHex(x, y, r));
+        }
+    }
+    ScrollTrigger.create({
+        trigger: '#layer4',
+        start: "top center",
+        onEnter: () => {
+            const polys = document.querySelectorAll('.hex-poly');
+            gsap.to(polys, {
+                fill: 'rgba(255, 77, 77, 0.2)',
+                stroke: '#ff4d4d',
+                duration: 0.2,
+                stagger: { amount: 0.5, from: "center" },
+                yoyo: true, repeat: 3
+            });
+            gsap.fromTo('#shield-wave', 
+                { width: 0, height: 0, opacity: 1 },
+                { width: 400, height: 400, opacity: 0, duration: 1.2, delay: 0.5 }
+            );
+        }
+    });
+}
+
+// --- LAYER 5: VELOCITY CANVAS ---
+const vCanvas = document.getElementById('velocity-canvas');
+if (vCanvas) {
+    const vCtx = vCanvas.getContext('2d');
+    let vW = vCanvas.width = vCanvas.offsetWidth || 300;
+    let vH = vCanvas.height = vCanvas.offsetHeight || 300;
+    let vProgress = 0;
+    let vAnimating = false;
+
+    function drawVelocity() {
+        vCtx.clearRect(0,0,vW,vH);
+        
+        let startX = vW * 0.2 + 20, startY = vH * 0.7;
+        let endX = vW * 0.8 - 20, endY = vH * 0.3;
+        let cpX = vW * 0.5, cpY = vH * 0.1;
+        
+        vCtx.beginPath();
+        vCtx.moveTo(startX, startY);
+        vCtx.quadraticCurveTo(cpX, cpY, endX, endY);
+        vCtx.strokeStyle = 'rgba(0, 255, 136, 0.2)';
+        vCtx.lineWidth = 2;
+        vCtx.stroke();
+        
+        if(vAnimating) {
+            let t = vProgress;
+            let x = (1-t)*(1-t)*startX + 2*(1-t)*t*cpX + t*t*endX;
+            let y = (1-t)*(1-t)*startY + 2*(1-t)*t*cpY + t*t*endY;
+            
+            vCtx.beginPath();
+            vCtx.arc(x, y, 6, 0, Math.PI*2);
+            vCtx.fillStyle = '#00ff88';
+            vCtx.fill();
+            vCtx.shadowBlur = 12;
+            vCtx.shadowColor = '#00ff88';
+            
+            vProgress += 0.015;
+            if(vProgress > 0.5) { // Hit glass
+                vAnimating = false;
+                vCtx.fillStyle = '#ff4d4d';
+                vCtx.fill();
+                gsap.to('#glass-barrier', { x: 8, duration: 0.05, yoyo: true, repeat: 5, backgroundColor: 'rgba(255,77,77,0.5)' });
+            } else {
+                requestAnimationFrame(drawVelocity);
+            }
+        }
+    }
+    drawVelocity();
+    ScrollTrigger.create({
+        trigger: '#layer5',
+        start: "top center",
+        onEnter: () => { vProgress = 0; vAnimating = true; requestAnimationFrame(drawVelocity); }
+    });
+}
+
+// --- LAYER 6: HEURISTICS ---
+ScrollTrigger.create({
+    trigger: '#layer6',
+    start: "top center",
+    onEnter: () => {
+        const packets = document.querySelectorAll('.packet-source');
+        gsap.set(packets, { x: -150, opacity: 0 });
+        packets.forEach((p, i) => {
+            let isClean = p.classList.contains('clean');
+            gsap.to(p, {
+                x: isClean ? 280 : 120, 
+                opacity: 1,
+                duration: 1.2,
+                delay: i * 0.6,
+                ease: "power2.out",
+                onComplete: () => {
+                    if(!isClean) {
+                        gsap.to(p, { y: 70, opacity: 0, duration: 0.6, scale: 0.8 });
+                    } else {
+                        gsap.to(p, { opacity: 0, duration: 0.6, scale: 1.2 });
+                    }
+                }
+            });
+        });
+    }
+});
+
+// --- LAYER 7: IDENTITY GRAPH ---
+const nCanvas = document.getElementById('node-canvas');
+if (nCanvas) {
+    const nCtx = nCanvas.getContext('2d');
+    let nW = nCanvas.width = nCanvas.offsetWidth || 300;
+    let nH = nCanvas.height = nCanvas.offsetHeight || 300;
+    let nodes = [];
+    let centerNode = { x: nW/2, y: nH/2 };
+
+    function initNodes() {
+        nodes = [];
+        for(let i=0; i<18; i++) {
+            let angle = Math.random() * Math.PI * 2;
+            let radius = 60 + Math.random() * 90;
+            nodes.push({
+                x: centerNode.x + Math.cos(angle)*radius,
+                y: centerNode.y + Math.sin(angle)*radius,
+                active: true
+            });
+        }
+    }
+    initNodes();
+
+    function drawNodes() {
+        nCtx.clearRect(0,0,nW,nH);
+        
+        nodes.forEach(n => {
+            nCtx.beginPath();
+            nCtx.moveTo(centerNode.x, centerNode.y);
+            nCtx.lineTo(n.x, n.y);
+            nCtx.strokeStyle = n.active ? 'rgba(0, 255, 136, 0.6)' : 'rgba(255, 77, 77, 0.6)';
+            nCtx.lineWidth = n.active ? 1.5 : 2.5;
+            if(!n.active) nCtx.setLineDash([6, 6]);
+            else nCtx.setLineDash([]);
+            nCtx.stroke();
+            
+            nCtx.beginPath();
+            nCtx.arc(n.x, n.y, 5, 0, Math.PI*2);
+            nCtx.fillStyle = n.active ? '#00ff88' : '#ff4d4d';
+            nCtx.fill();
+        });
+        
+        nCtx.beginPath();
+        nCtx.arc(centerNode.x, centerNode.y, 10, 0, Math.PI*2);
+        nCtx.fillStyle = '#00ff88';
+        nCtx.fill();
+        nCtx.shadowBlur = 20;
+        nCtx.shadowColor = '#00ff88';
+        nCtx.shadowOffsetX = 0; nCtx.shadowOffsetY = 0;
+    }
+    drawNodes();
+
+    ScrollTrigger.create({
+        trigger: '#layer7',
+        start: "top center",
+        onEnter: () => {
+            setTimeout(() => {
+                nodes.forEach(n => n.active = false);
+                drawNodes();
+                gsap.to(nodes, {
+                    x: (i, t) => t.x + (Math.random()-0.5)*150,
+                    y: (i, t) => t.y + (Math.random()-0.5)*150,
+                    duration: 1.5,
+                    ease: "power2.out",
+                    onUpdate: drawNodes
+                });
+            }, 800);
+        }
+    });
+}
+
+// --- LAYER 8: ML CORE & TERMINAL ---
+ScrollTrigger.create({
+    trigger: '#layer8',
+    start: "top 60%",
+    onEnter: () => {
+        document.querySelectorAll('.vote-fill').forEach(fill => {
+            fill.style.width = fill.style.getPropertyValue('--w');
+        });
+        
+        const lines = document.querySelectorAll('.t-line:not(.verdict-line)');
+        lines.forEach((line, i) => {
+            gsap.to(line, { opacity: 1, y: 0, duration: 0.1, delay: i * 0.4 });
+        });
+        
+        setTimeout(() => {
+            const vLine = document.getElementById('verdict-line');
+            if (vLine) {
+                vLine.style.display = 'block';
+                gsap.to(vLine, { opacity: 1, y: 0, duration: 0.1 });
+                
+                const text = "FRAUD RING CONFIRMED. QUARANTINE ENGAGED.";
+                const textEl = document.getElementById('verdict-text');
+                textEl.innerHTML = "";
+                let charIdx = 0;
+                let typeInterval = setInterval(() => {
+                    textEl.innerHTML += text[charIdx];
+                    charIdx++;
+                    if(charIdx >= text.length) clearInterval(typeInterval);
+                }, 40);
+                
+                gsap.to('.verdict-section', { backgroundColor: 'rgba(200, 20, 20, 0.2)', duration: 0.3, yoyo: true, repeat: 4 });
+            }
+        }, lines.length * 400 + 200);
+    }
+});
+
+const mlCanvas = document.getElementById('ml-canvas');
+if (mlCanvas) {
+    const mlCtx = mlCanvas.getContext('2d');
+    let mlW = mlCanvas.width = mlCanvas.offsetWidth || 800;
+    let mlH = mlCanvas.height = mlCanvas.offsetHeight || 600;
+    let mlTime = 0;
+    function drawML() {
+        mlCtx.clearRect(0,0,mlW,mlH);
+        let cx = mlW * 0.7, cy = mlH/2; // Offset to the right side of the section
+        
+        for(let r=0; r<5; r++) {
+            mlCtx.save();
+            mlCtx.translate(cx, cy);
+            mlCtx.rotate(mlTime * (r%2===0 ? 1 : -1) * (0.005 + r*0.002));
+            
+            mlCtx.beginPath();
+            mlCtx.arc(0, 0, 120 + r*60, 0, Math.PI*1.6);
+            mlCtx.strokeStyle = `rgba(${r*50}, ${150 - r*20}, 255, 0.3)`;
+            mlCtx.lineWidth = 3 + r;
+            mlCtx.stroke();
+            mlCtx.restore();
+        }
+        
+        mlTime++;
+        requestAnimationFrame(drawML);
+    }
+    drawML();
+}
+
+// Window resize handler
+window.addEventListener('resize', () => {
+    if(sineCanvas) { sWidth = sineCanvas.width = sineCanvas.offsetWidth; sHeight = sineCanvas.height = sineCanvas.offsetHeight; }
+    if(rainCanvas) { rainCanvas.width = rainCanvas.offsetWidth; rainCanvas.height = rainCanvas.offsetHeight; }
+    if(vCanvas) { vW = vCanvas.width = vCanvas.offsetWidth; vH = vCanvas.height = vCanvas.offsetHeight; }
+    if(nCanvas) { 
+        nW = nCanvas.width = nCanvas.offsetWidth; 
+        nH = nCanvas.height = nCanvas.offsetHeight; 
+        if(typeof centerNode !== 'undefined') { centerNode = { x: nW/2, y: nH/2 }; initNodes(); drawNodes(); }
+    }
+    if(mlCanvas) { mlW = mlCanvas.width = mlCanvas.offsetWidth; mlH = mlCanvas.height = mlCanvas.offsetHeight; }
+});

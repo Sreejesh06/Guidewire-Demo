@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aegis Sentinel — 8-Layer Fraud Defense</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css" />
+</head>
+
+<body>
+
+    <!-- GRID OVERLAY -->
+    <div class="grid-overlay"></div>
+
+    <!-- NAV -->
+    <a href="../index.html" class="nav-back">← SYSTEM DEMO</a>
+
+    <!-- ===================== HERO ===================== -->
+    <section class="hero" id="hero">
+        <canvas id="hero-canvas"></canvas>
+        <div class="hero-content">
+            <div class="hero-eyebrow">
+                <span class="eyebrow-dot"></span>
+                <span>FRAUD INTELLIGENCE PLATFORM</span>
+            </div>
+            <h1 class="hero-headline">
+                <span class="line line-1">Zero-Touch Claims.</span>
+                <span class="line line-2">Zero-Tolerance Fraud.</span>
+            </h1>
+            <p class="hero-sub">The Aegis Sentinel 8-Layer Defense</p>
+            <div class="hero-stats">
+                <div class="stat">
+                    <span class="stat-num" data-target="99.97">0</span><span class="stat-unit">%</span>
+                    <span class="stat-label">Detection Rate</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat">
+                    <span class="stat-num" data-target="0.3">0</span><span class="stat-unit">ms</span>
+                    <span class="stat-label">Response Time</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat">
+                    <span class="stat-num" data-target="8">0</span><span class="stat-unit">x</span>
+                    <span class="stat-label">Defense Layers</span>
+                </div>
+            </div>
+            <div class="scroll-cue">
+                <div class="scroll-line"></div>
+                <span>SCROLL TO DEPLOY</span>
+            </div>
+        </div>
+        <div class="hero-grid-lines"></div>
+    </section>
+
+    <!-- ===================== PHASE 1: PHYSICAL REALITY ===================== -->
+    <section class="phase-header" id="phase1-header">
+        <div class="phase-label">PHASE 01 / 03</div>
+        <h2 class="phase-title">Physical<br />Reality</h2>
+        <p class="phase-desc">Device-level kinematic and environmental signal fusion</p>
+    </section>
+
+    <!-- LAYER 1: KINEMATIC CONSISTENCY -->
+    <section class="layer-section" id="layer1">
+        <div class="layer-number">L-01</div>
+        <div class="layer-layout">
+            <div class="layer-visual-wrap">
+                <div class="phone-stage">
+                    <div class="phone-device" id="phone-shake">
+                        <div class="phone-screen">
+                            <div class="phone-status-bar">
+                                <span>9:41</span>
+                                <span class="signal-dots">
+                                    <span></span><span></span><span></span>
+                                </span>
+                            </div>
+                            <div class="phone-app-content">
+                                <div class="app-header">Claim Filing</div>
+                                <div class="app-field"></div>
+                                <div class="app-field short"></div>
+                                <div class="app-submit">SUBMIT</div>
+                            </div>
+                            <canvas class="sine-overlay" id="sine-canvas"></canvas>
+                        </div>
+                        <div class="phone-notch"></div>
+                        <div class="phone-button left"></div>
+                        <div class="phone-button right top"></div>
+                        <div class="phone-button right bot"></div>
+                    </div>
+                    <div class="phone-glow"></div>
+                </div>
+            </div>
+            <div class="layer-info">
+                <div class="layer-tag">Layer 01</div>
+                <h3 class="layer-title">Kinematic<br />Fingerprinting</h3>
+                <p class="layer-desc">IMU sensor streams are analyzed in real-time. Bot scripts and emulators cannot
+                    replicate the chaotic, organic noise signature of a genuinely handheld device.</p>
+                <ul class="layer-bullets">
+                    <li><span class="bullet-dot cyan"></span>Accelerometer delta analysis</li>
+                    <li><span class="bullet-dot cyan"></span>Gyroscope entropy scoring</li>
+                    <li><span class="bullet-dot cyan"></span>Bot emulator nullification</li>
+                </ul>
+                <div class="layer-verdict pass">SIGNAL AUTHENTIC</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LAYER 2: ATMOS SENTINEL -->
+    <section class="layer-section" id="layer2">
+        <div class="layer-number">L-02</div>
+        <div class="layer-layout reverse">
+            <div class="layer-visual-wrap">
+                <div class="atmos-stage">
+                    <canvas id="rain-canvas"></canvas>
+                    <div class="atmos-phone-mini">
+                        <div class="atmos-screen">
+                            <div class="atmos-readings">
+                                <div class="reading-row">
+                                    <span class="reading-label">BARO</span>
+                                    <span class="reading-val" id="baro-val">1013.2 hPa</span>
+                                </div>
+                                <div class="reading-row">
+                                    <span class="reading-label">TEMP</span>
+                                    <span class="reading-val" id="temp-val">22.4 C</span>
+                                </div>
+                                <div class="reading-row">
+                                    <span class="reading-label">HUMID</span>
+                                    <span class="reading-val" id="humid-val">67%</span>
+                                </div>
+                            </div>
+                            <div class="atmos-match">
+                                <span class="match-icon">&#10003;</span>
+                                SENSOR MATCH
+                            </div>
+                        </div>
+                    </div>
+                    <div id="lightning-flash" class="lightning-flash"></div>
+                </div>
+            </div>
+            <div class="layer-info">
+                <div class="layer-tag">Layer 02</div>
+                <h3 class="layer-title">Atmos Sentinel<br />Verification</h3>
+                <p class="layer-desc">Barometric pressure, ambient temperature, and humidity readings are
+                    cross-referenced with live meteorological APIs at the claimed incident location.</p>
+                <ul class="layer-bullets">
+                    <li><span class="bullet-dot green"></span>Barometric cross-validation</li>
+                    <li><span class="bullet-dot green"></span>Live weather API fusion</li>
+                    <li><span class="bullet-dot green"></span>Environmental spoof detection</li>
+                </ul>
+                <div class="layer-verdict pass">ENVIRONMENT VERIFIED</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== PHASE 2: DIGITAL BEHAVIOR ===================== -->
+    <section class="phase-header" id="phase2-header">
+        <div class="phase-label">PHASE 02 / 03</div>
+        <h2 class="phase-title">Digital<br />Behavior</h2>
+        <p class="phase-desc">Network, geospatial, and identity signal triangulation</p>
+    </section>
+
+    <!-- LAYER 3: TEMPORAL ALIGNMENT -->
+    <section class="layer-section" id="layer3">
+        <div class="layer-number">L-03</div>
+        <div class="layer-layout">
+            <div class="layer-visual-wrap">
+                <div class="temporal-stage">
+                    <div class="clock-container">
+                        <div class="clock-block">
+                            <div class="clock-label">CLIENT TIMESTAMP</div>
+                            <div class="clock-display glitch-red" id="client-clock">00:00:000</div>
+                            <div class="clock-status red">MANIPULATED</div>
+                        </div>
+                        <div class="clock-vs">VS</div>
+                        <div class="clock-block">
+                            <div class="clock-label">SERVER RECEIPT</div>
+                            <div class="clock-display glow-green" id="server-clock">00:00:000</div>
+                            <div class="clock-status green">AUTHORITATIVE</div>
+                        </div>
+                    </div>
+                    <div class="temporal-delta">
+                        <span class="delta-label">DELTA</span>
+                        <span class="delta-value" id="delta-val">+47.3s</span>
+                        <span class="delta-flag">ANOMALY FLAGGED</span>
+                    </div>
+                </div>
+            </div>
+            <div class="layer-info">
+                <div class="layer-tag">Layer 03</div>
+                <h3 class="layer-title">Temporal<br />Alignment</h3>
+                <p class="layer-desc">Client-reported timestamps are compared against authoritative server-side receipt
+                    times. Backdated or future-dated claims are flagged instantly.</p>
+                <ul class="layer-bullets">
+                    <li><span class="bullet-dot yellow"></span>NTP server cross-check</li>
+                    <li><span class="bullet-dot yellow"></span>Backdating anomaly detection</li>
+                    <li><span class="bullet-dot yellow"></span>Clock drift analysis</li>
+                </ul>
+                <div class="layer-verdict warn">TIMESTAMP ANOMALY</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LAYER 4: H3 GEOSPATIAL BURST -->
+    <section class="layer-section" id="layer4">
+        <div class="layer-number">L-04</div>
+        <div class="layer-layout reverse">
+            <div class="layer-visual-wrap">
+                <div class="hex-stage">
+                    <svg id="hex-grid" viewBox="0 0 420 360" xmlns="http://www.w3.org/2000/svg"></svg>
+                    <div class="shield-wave" id="shield-wave"></div>
+                </div>
+            </div>
+            <div class="layer-info">
+                <div class="layer-tag">Layer 04</div>
+                <h3 class="layer-title">H3 Burst<br />Defense</h3>
+                <p class="layer-desc">Uber H3 hexagonal geospatial indexing detects anomalous claim volume spikes within
+                    geographic cells. Coordinated fraud rings are identified and suppressed.</p>
+                <ul class="layer-bullets">
+                    <li><span class="bullet-dot red"></span>H3 resolution-9 indexing</li>
+                    <li><span class="bullet-dot red"></span>Volume burst detection</li>
+                    <li><span class="bullet-dot red"></span>Coordinated ring suppression</li>
+                </ul>
+                <div class="layer-verdict fail">BURST DETECTED — SUPPRESSED</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LAYER 5: GEOMETRIC VELOCITY -->
+    <section class="layer-section" id="layer5">
+        <div class="layer-number">L-05</div>
+        <div class="layer-layout">
+            <div class="layer-visual-wrap">
+                <div class="velocity-stage">
+                    <canvas id="velocity-canvas"></canvas>
+                    <div class="velocity-labels">
+                        <div class="vlabel" id="v-city-a">NYC</div>
+                        <div class="vlabel" id="v-city-b">LAX</div>
+                    </div>
+                    <div class="glass-barrier" id="glass-barrier"></div>
+                    <div class="shatter-pieces" id="shatter"></div>
+                </div>
+            </div>
+            <div class="layer-info">
+                <div class="layer-tag">Layer 05</div>
+                <h3 class="layer-title">Anti-Teleportation<br />Matrix</h3>
+                <p class="layer-desc">Geospatial velocity is calculated between consecutive claim events. Physically
+                    impossible travel speeds are flagged as identity theft or coordinated fraud.</p>
+                <ul class="layer-bullets">
+                    <li><span class="bullet-dot cyan"></span>Great-circle distance math</li>
+                    <li><span class="bullet-dot cyan"></span>Velocity threshold analysis</li>
+                    <li><span class="bullet-dot cyan"></span>Multi-device identity binding</li>
+                </ul>
+                <div class="layer-verdict fail">VELOCITY VIOLATION</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LAYER 6: HARDWARE HEURISTICS -->
+    <section class="layer-section" id="layer6">
+        <div class="layer-number">L-06</div>
+        <div class="layer-layout reverse">
+            <div class="layer-visual-wrap">
+                <div class="heuristics-stage">
+                    <div class="packet-track">
+                        <div class="track-label">INCOMING SIGNALS</div>
+                        <div class="track-rail" id="packet-rail">
+                            <div class="packet-source clean">DEVICE A</div>
+                            <div class="packet-source vpn">VPN NODE</div>
+                            <div class="packet-source clean">DEVICE B</div>
+                            <div class="packet-source proxy">PROXY</div>
+                            <div class="packet-source clean">DEVICE C</div>
+                        </div>
+                        <div class="track-gate">
+                            <div class="gate-label">HEURISTIC GATE</div>
+                        </div>
+                        <div class="track-output">
+                            <div class="output-lane clean-lane">CLEAR</div>
+                            <div class="output-lane blocked-lane">BLOCKED</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layer-info">
+                <div class="layer-tag">Layer 06</div>
+                <h3 class="layer-title">Sub-Millisecond<br />Heuristics</h3>
+                <p class="layer-desc">Hardware fingerprints are scored for VPN usage, proxy routing, emulator
+                    signatures, and device-recycling patterns in under 0.3ms.</p>
+                <ul class="layer-bullets">
+                    <li><span class="bullet-dot green"></span>VPN and proxy detection</li>
+                    <li><span class="bullet-dot green"></span>Emulator signature blocking</li>
+                    <li><span class="bullet-dot green"></span>Device recycling pattern flags</li>
+                </ul>
+                <div class="layer-verdict pass">HEURISTICS CLEAR</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LAYER 7: IDENTITY FINGERPRINT -->
+    <section class="layer-section" id="layer7">
+        <div class="layer-number">L-07</div>
+        <div class="layer-layout">
+            <div class="layer-visual-wrap">
+                <div class="identity-stage">
+                    <canvas id="node-canvas"></canvas>
+                </div>
+            </div>
+            <div class="layer-info">
+                <div class="layer-tag">Layer 07</div>
+                <h3 class="layer-title">Identity<br />Fingerprint Graph</h3>
+                <p class="layer-desc">Multiple user identities connected to a single hardware node are mapped. When the
+                    ratio exceeds the threshold, the graph links snap and the device is quarantined.</p>
+                <ul class="layer-bullets">
+                    <li><span class="bullet-dot red"></span>Multi-identity graph mapping</li>
+                    <li><span class="bullet-dot red"></span>Hardware node quarantine</li>
+                    <li><span class="bullet-dot red"></span>Synthetic identity detection</li>
+                </ul>
+                <div class="layer-verdict fail">MULTI-IDENTITY DETECTED</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== PHASE 3: THE VERDICT ===================== -->
+    <section class="phase-header verdict-phase" id="phase3-header">
+        <div class="phase-label">PHASE 03 / 03</div>
+        <h2 class="phase-title">The Ultimate<br />Verdict</h2>
+        <p class="phase-desc">Quad-model weighted ML fusion delivers a final decision</p>
+    </section>
+
+    <!-- LAYER 8: ML FUSION CORE -->
+    <section class="layer-section verdict-section" id="layer8">
+        <div class="layer-number">L-08</div>
+        <canvas id="ml-canvas"></canvas>
+        <div class="ml-overlay">
+            <div class="ml-info">
+                <div class="layer-tag">Layer 08</div>
+                <h3 class="ml-title">Quad-Model<br />AI Fusion</h3>
+                <p class="ml-desc">Four independently trained models — XGBoost, Neural Net, Isolation Forest, and LSTM —
+                    cast weighted votes. The fusion core synthesizes a tamper-proof final verdict.</p>
+                <div class="model-votes" id="model-votes">
+                    <div class="vote-row" data-model="XGBoost">
+                        <span class="vote-name">XGBoost</span>
+                        <div class="vote-bar">
+                            <div class="vote-fill" style="--w:94%"></div>
+                        </div>
+                        <span class="vote-pct">94%</span>
+                    </div>
+                    <div class="vote-row" data-model="Neural Net">
+                        <span class="vote-name">Neural Net</span>
+                        <div class="vote-bar">
+                            <div class="vote-fill" style="--w:97%"></div>
+                        </div>
+                        <span class="vote-pct">97%</span>
+                    </div>
+                    <div class="vote-row" data-model="Iso Forest">
+                        <span class="vote-name">Iso Forest</span>
+                        <div class="vote-bar">
+                            <div class="vote-fill" style="--w:91%"></div>
+                        </div>
+                        <span class="vote-pct">91%</span>
+                    </div>
+                    <div class="vote-row" data-model="LSTM">
+                        <span class="vote-name">LSTM</span>
+                        <div class="vote-bar">
+                            <div class="vote-fill" style="--w:98%"></div>
+                        </div>
+                        <span class="vote-pct">98%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="terminal-block" id="terminal">
+                <div class="terminal-header">
+                    <span class="t-dot"></span><span class="t-dot"></span><span class="t-dot"></span>
+                    <span class="t-title">aegis_core_v8 — verdict_engine</span>
+                </div>
+                <div class="terminal-body" id="terminal-body">
+                    <div class="t-line dim">> Initializing fusion core...</div>
+                    <div class="t-line dim">> Loading model weights...</div>
+                    <div class="t-line dim">> Analyzing 8-layer signals...</div>
+                    <div class="t-line dim">> Running XGBoost classifier...</div>
+                    <div class="t-line dim">> Running LSTM sequence model...</div>
+                    <div class="t-line dim">> Computing weighted ensemble...</div>
+                    <div class="t-line verdict-line" id="verdict-line" style="display:none">
+                        > VERDICT: <span class="verdict-text" id="verdict-text"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== LAYER RECAP ===================== -->
+    <section class="recap-section" id="recap">
+        <div class="recap-inner">
+            <div class="recap-header">
+                <span class="recap-eyebrow">COMPLETE DEFENSE STACK</span>
+                <h2 class="recap-title">8 Layers. One Verdict.</h2>
+            </div>
+            <div class="recap-grid">
+                <div class="recap-card" data-phase="1">
+                    <span class="rc-num">01</span>
+                    <span class="rc-name">Kinematic Fingerprinting</span>
+                    <span class="rc-phase">Physical</span>
+                </div>
+                <div class="recap-card" data-phase="1">
+                    <span class="rc-num">02</span>
+                    <span class="rc-name">Atmos Sentinel</span>
+                    <span class="rc-phase">Physical</span>
+                </div>
+                <div class="recap-card" data-phase="2">
+                    <span class="rc-num">03</span>
+                    <span class="rc-name">Temporal Alignment</span>
+                    <span class="rc-phase">Digital</span>
+                </div>
+                <div class="recap-card" data-phase="2">
+                    <span class="rc-num">04</span>
+                    <span class="rc-name">H3 Burst Defense</span>
+                    <span class="rc-phase">Digital</span>
+                </div>
+                <div class="recap-card" data-phase="2">
+                    <span class="rc-num">05</span>
+                    <span class="rc-name">Anti-Teleportation Matrix</span>
+                    <span class="rc-phase">Digital</span>
+                </div>
+                <div class="recap-card" data-phase="2">
+                    <span class="rc-num">06</span>
+                    <span class="rc-name">Sub-Ms Heuristics</span>
+                    <span class="rc-phase">Digital</span>
+                </div>
+                <div class="recap-card" data-phase="2">
+                    <span class="rc-num">07</span>
+                    <span class="rc-name">Identity Fingerprint Graph</span>
+                    <span class="rc-phase">Digital</span>
+                </div>
+                <div class="recap-card verdict-card" data-phase="3">
+                    <span class="rc-num">08</span>
+                    <span class="rc-name">Quad-Model AI Fusion</span>
+                    <span class="rc-phase">Verdict</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-brand">AEGIS SENTINEL</div>
+            <div class="footer-copy">Fraud Intelligence Platform — 8-Layer Defense Architecture</div>
+        </div>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="main.js"></script>
+</body>
+
+</html>
