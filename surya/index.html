@@ -25,22 +25,17 @@
         <div class="hero-content">
             <div class="hero-eyebrow">
                 <span class="eyebrow-dot"></span>
-                <span>FRAUD INTELLIGENCE PLATFORM</span>
+                <span>SMART FRAUD PROTECTION</span>
             </div>
             <h1 class="hero-headline">
-                <span class="line line-1">Zero-Touch Claims.</span>
-                <span class="line line-2">Zero-Tolerance Fraud.</span>
+                <span class="line line-1">Automatic Claims.</span>
+                <span class="line line-2">No More Fraud.</span>
             </h1>
-            <p class="hero-sub">The Aegis Sentinel 8-Layer Defense</p>
+            <p class="hero-sub">Our 8-Step Security Check</p>
             <div class="hero-stats">
                 <div class="stat">
                     <span class="stat-num" data-target="99.97">0</span><span class="stat-unit">%</span>
                     <span class="stat-label">Detection Rate</span>
-                </div>
-                <div class="stat-divider"></div>
-                <div class="stat">
-                    <span class="stat-num" data-target="0.3">0</span><span class="stat-unit">ms</span>
-                    <span class="stat-label">Response Time</span>
                 </div>
                 <div class="stat-divider"></div>
                 <div class="stat">
@@ -60,7 +55,7 @@
     <section class="phase-header" id="phase1-header">
         <div class="phase-label">PHASE 01 / 03</div>
         <h2 class="phase-title">Physical<br />Reality</h2>
-        <p class="phase-desc">Device-level kinematic and environmental signal fusion</p>
+        <p class="phase-desc">Checking phone movements and local weather conditions</p>
     </section>
 
     <!-- LAYER 1: KINEMATIC CONSISTENCY -->
@@ -69,41 +64,24 @@
         <div class="layer-layout">
             <div class="layer-visual-wrap">
                 <div class="phone-stage">
-                    <div class="phone-device" id="phone-shake">
-                        <div class="phone-screen">
-                            <div class="phone-status-bar">
-                                <span>9:41</span>
-                                <span class="signal-dots">
-                                    <span></span><span></span><span></span>
-                                </span>
-                            </div>
-                            <div class="phone-app-content">
-                                <div class="app-header">Claim Filing</div>
-                                <div class="app-field"></div>
-                                <div class="app-field short"></div>
-                                <div class="app-submit">SUBMIT</div>
-                            </div>
-                            <canvas class="sine-overlay" id="sine-canvas"></canvas>
-                        </div>
-                        <div class="phone-notch"></div>
-                        <div class="phone-button left"></div>
-                        <div class="phone-button right top"></div>
-                        <div class="phone-button right bot"></div>
+                    <div class="telemetry-box" id="accel-telemetry">
+                        <div class="telemetry-title">IMU SENSOR STREAM</div>
+                        <div class="axis"><span>X-AXIS</span><span id="acc-x">+0.000</span></div>
+                        <div class="axis"><span>Y-AXIS</span><span id="acc-y">-0.000</span></div>
+                        <div class="axis"><span>Z-AXIS</span><span id="acc-z">+0.981</span></div>
+                        <div class="telemetry-graph"><canvas id="accel-graph-canvas"></canvas></div>
                     </div>
-                    <div class="phone-glow"></div>
                 </div>
             </div>
             <div class="layer-info">
                 <div class="layer-tag">Layer 01</div>
-                <h3 class="layer-title">Kinematic<br />Fingerprinting</h3>
-                <p class="layer-desc">IMU sensor streams are analyzed in real-time. Bot scripts and emulators cannot
-                    replicate the chaotic, organic noise signature of a genuinely handheld device.</p>
+                <h3 class="layer-title">Movement<br />Tracking</h3>
                 <ul class="layer-bullets">
-                    <li><span class="bullet-dot cyan"></span>Accelerometer delta analysis</li>
-                    <li><span class="bullet-dot cyan"></span>Gyroscope entropy scoring</li>
-                    <li><span class="bullet-dot cyan"></span>Bot emulator nullification</li>
+                    <li><span class="bullet-dot cyan"></span>Phone speed checks</li>
+                    <li><span class="bullet-dot cyan"></span>Tilt and rotation checks</li>
+                    <li><span class="bullet-dot cyan"></span>Blocking fake devices</li>
                 </ul>
-                <div class="layer-verdict pass">SIGNAL AUTHENTIC</div>
+                <div class="layer-verdict pass">MOVEMENT IS REAL</div>
             </div>
         </div>
     </section>
@@ -127,8 +105,8 @@
                                     <span class="reading-val" id="temp-val">22.4 C</span>
                                 </div>
                                 <div class="reading-row">
-                                    <span class="reading-label">HUMID</span>
-                                    <span class="reading-val" id="humid-val">67%</span>
+                                    <span class="reading-label">MIC</span>
+                                    <span class="reading-val" id="mic-val">42 dB</span>
                                 </div>
                             </div>
                             <div class="atmos-match">
@@ -142,15 +120,13 @@
             </div>
             <div class="layer-info">
                 <div class="layer-tag">Layer 02</div>
-                <h3 class="layer-title">Atmos Sentinel<br />Verification</h3>
-                <p class="layer-desc">Barometric pressure, ambient temperature, and humidity readings are
-                    cross-referenced with live meteorological APIs at the claimed incident location.</p>
+                <h3 class="layer-title">Weather<br />Verification</h3>
                 <ul class="layer-bullets">
-                    <li><span class="bullet-dot green"></span>Barometric cross-validation</li>
-                    <li><span class="bullet-dot green"></span>Live weather API fusion</li>
-                    <li><span class="bullet-dot green"></span>Environmental spoof detection</li>
+                    <li><span class="bullet-dot green"></span>Barometer pressure checks</li>
+                    <li><span class="bullet-dot green"></span>Microphone noise matching</li>
+                    <li><span class="bullet-dot green"></span>Spotting fake locations</li>
                 </ul>
-                <div class="layer-verdict pass">ENVIRONMENT VERIFIED</div>
+                <div class="layer-verdict pass">WEATHER MATCHES</div>
             </div>
         </div>
     </section>
@@ -159,7 +135,7 @@
     <section class="phase-header" id="phase2-header">
         <div class="phase-label">PHASE 02 / 03</div>
         <h2 class="phase-title">Digital<br />Behavior</h2>
-        <p class="phase-desc">Network, geospatial, and identity signal triangulation</p>
+        <p class="phase-desc">Checking network rules, location tracking, and user accounts</p>
     </section>
 
     <!-- LAYER 3: TEMPORAL ALIGNMENT -->
@@ -190,15 +166,13 @@
             </div>
             <div class="layer-info">
                 <div class="layer-tag">Layer 03</div>
-                <h3 class="layer-title">Temporal<br />Alignment</h3>
-                <p class="layer-desc">Client-reported timestamps are compared against authoritative server-side receipt
-                    times. Backdated or future-dated claims are flagged instantly.</p>
+                <h3 class="layer-title">Time<br />Checks</h3>
                 <ul class="layer-bullets">
-                    <li><span class="bullet-dot yellow"></span>NTP server cross-check</li>
-                    <li><span class="bullet-dot yellow"></span>Backdating anomaly detection</li>
-                    <li><span class="bullet-dot yellow"></span>Clock drift analysis</li>
+                    <li><span class="bullet-dot yellow"></span>Network time checks</li>
+                    <li><span class="bullet-dot yellow"></span>Stopping past-dated claims</li>
+                    <li><span class="bullet-dot yellow"></span>Spotting tampered clocks</li>
                 </ul>
-                <div class="layer-verdict warn">TIMESTAMP ANOMALY</div>
+                <div class="layer-verdict warn">TIME DOES NOT MATCH</div>
             </div>
         </div>
     </section>
@@ -215,15 +189,13 @@
             </div>
             <div class="layer-info">
                 <div class="layer-tag">Layer 04</div>
-                <h3 class="layer-title">H3 Burst<br />Defense</h3>
-                <p class="layer-desc">Uber H3 hexagonal geospatial indexing detects anomalous claim volume spikes within
-                    geographic cells. Coordinated fraud rings are identified and suppressed.</p>
+                <h3 class="layer-title">Location Spike<br />Defense</h3>
                 <ul class="layer-bullets">
-                    <li><span class="bullet-dot red"></span>H3 resolution-9 indexing</li>
-                    <li><span class="bullet-dot red"></span>Volume burst detection</li>
-                    <li><span class="bullet-dot red"></span>Coordinated ring suppression</li>
+                    <li><span class="bullet-dot red"></span>Mapping small areas</li>
+                    <li><span class="bullet-dot red"></span>Spotting unusual spikes</li>
+                    <li><span class="bullet-dot red"></span>Stopping organized groups</li>
                 </ul>
-                <div class="layer-verdict fail">BURST DETECTED — SUPPRESSED</div>
+                <div class="layer-verdict fail">SPIKE DETECTED AND STOPPED</div>
             </div>
         </div>
     </section>
@@ -245,15 +217,13 @@
             </div>
             <div class="layer-info">
                 <div class="layer-tag">Layer 05</div>
-                <h3 class="layer-title">Anti-Teleportation<br />Matrix</h3>
-                <p class="layer-desc">Geospatial velocity is calculated between consecutive claim events. Physically
-                    impossible travel speeds are flagged as identity theft or coordinated fraud.</p>
+                <h3 class="layer-title">Speed<br />Checks</h3>
                 <ul class="layer-bullets">
-                    <li><span class="bullet-dot cyan"></span>Great-circle distance math</li>
-                    <li><span class="bullet-dot cyan"></span>Velocity threshold analysis</li>
-                    <li><span class="bullet-dot cyan"></span>Multi-device identity binding</li>
+                    <li><span class="bullet-dot cyan"></span>Checking map distances</li>
+                    <li><span class="bullet-dot cyan"></span>Checking travel speed</li>
+                    <li><span class="bullet-dot cyan"></span>Linking accounts to devices</li>
                 </ul>
-                <div class="layer-verdict fail">VELOCITY VIOLATION</div>
+                <div class="layer-verdict fail">IMPOSSIBLE TRAVEL SPEED</div>
             </div>
         </div>
     </section>
@@ -285,15 +255,13 @@
             </div>
             <div class="layer-info">
                 <div class="layer-tag">Layer 06</div>
-                <h3 class="layer-title">Sub-Millisecond<br />Heuristics</h3>
-                <p class="layer-desc">Hardware fingerprints are scored for VPN usage, proxy routing, emulator
-                    signatures, and device-recycling patterns in under 0.3ms.</p>
+                <h3 class="layer-title">Instant Rule<br />Checks</h3>
                 <ul class="layer-bullets">
-                    <li><span class="bullet-dot green"></span>VPN and proxy detection</li>
-                    <li><span class="bullet-dot green"></span>Emulator signature blocking</li>
-                    <li><span class="bullet-dot green"></span>Device recycling pattern flags</li>
+                    <li><span class="bullet-dot green"></span>Spotting VPNs and proxies</li>
+                    <li><span class="bullet-dot green"></span>Blocking software phones</li>
+                    <li><span class="bullet-dot green"></span>Spotting reused devices</li>
                 </ul>
-                <div class="layer-verdict pass">HEURISTICS CLEAR</div>
+                <div class="layer-verdict pass">CHECKS PASSED</div>
             </div>
         </div>
     </section>
@@ -309,15 +277,13 @@
             </div>
             <div class="layer-info">
                 <div class="layer-tag">Layer 07</div>
-                <h3 class="layer-title">Identity<br />Fingerprint Graph</h3>
-                <p class="layer-desc">Multiple user identities connected to a single hardware node are mapped. When the
-                    ratio exceeds the threshold, the graph links snap and the device is quarantined.</p>
+                <h3 class="layer-title">Account<br />Linking</h3>
                 <ul class="layer-bullets">
-                    <li><span class="bullet-dot red"></span>Multi-identity graph mapping</li>
-                    <li><span class="bullet-dot red"></span>Hardware node quarantine</li>
-                    <li><span class="bullet-dot red"></span>Synthetic identity detection</li>
+                    <li><span class="bullet-dot red"></span>Tracking connected accounts</li>
+                    <li><span class="bullet-dot red"></span>Blocking bad phones</li>
+                    <li><span class="bullet-dot red"></span>Spotting fake accounts</li>
                 </ul>
-                <div class="layer-verdict fail">MULTI-IDENTITY DETECTED</div>
+                <div class="layer-verdict fail">TOO MANY ACCOUNTS ON DEVICE</div>
             </div>
         </div>
     </section>
@@ -325,8 +291,8 @@
     <!-- ===================== PHASE 3: THE VERDICT ===================== -->
     <section class="phase-header verdict-phase" id="phase3-header">
         <div class="phase-label">PHASE 03 / 03</div>
-        <h2 class="phase-title">The Ultimate<br />Verdict</h2>
-        <p class="phase-desc">Quad-model weighted ML fusion delivers a final decision</p>
+        <h2 class="phase-title">The Final<br />Result</h2>
+        <p class="phase-desc">Our smart system combines four different AI checks to make a final choice</p>
     </section>
 
     <!-- LAYER 8: ML FUSION CORE -->
@@ -336,9 +302,7 @@
         <div class="ml-overlay">
             <div class="ml-info">
                 <div class="layer-tag">Layer 08</div>
-                <h3 class="ml-title">Quad-Model<br />AI Fusion</h3>
-                <p class="ml-desc">Four independently trained models — XGBoost, Neural Net, Isolation Forest, and LSTM —
-                    cast weighted votes. The fusion core synthesizes a tamper-proof final verdict.</p>
+                <h3 class="ml-title">Smart AI<br />Decision</h3>
                 <div class="model-votes" id="model-votes">
                     <div class="vote-row" data-model="XGBoost">
                         <span class="vote-name">XGBoost</span>
@@ -400,42 +364,42 @@
             <div class="recap-grid">
                 <div class="recap-card" data-phase="1">
                     <span class="rc-num">01</span>
-                    <span class="rc-name">Kinematic Fingerprinting</span>
+                    <span class="rc-name">Movement Tracking</span>
                     <span class="rc-phase">Physical</span>
                 </div>
                 <div class="recap-card" data-phase="1">
                     <span class="rc-num">02</span>
-                    <span class="rc-name">Atmos Sentinel</span>
+                    <span class="rc-name">Weather Verification</span>
                     <span class="rc-phase">Physical</span>
                 </div>
                 <div class="recap-card" data-phase="2">
                     <span class="rc-num">03</span>
-                    <span class="rc-name">Temporal Alignment</span>
+                    <span class="rc-name">Time Checks</span>
                     <span class="rc-phase">Digital</span>
                 </div>
                 <div class="recap-card" data-phase="2">
                     <span class="rc-num">04</span>
-                    <span class="rc-name">H3 Burst Defense</span>
+                    <span class="rc-name">Location Spike Defense</span>
                     <span class="rc-phase">Digital</span>
                 </div>
                 <div class="recap-card" data-phase="2">
                     <span class="rc-num">05</span>
-                    <span class="rc-name">Anti-Teleportation Matrix</span>
+                    <span class="rc-name">Speed Checks</span>
                     <span class="rc-phase">Digital</span>
                 </div>
                 <div class="recap-card" data-phase="2">
                     <span class="rc-num">06</span>
-                    <span class="rc-name">Sub-Ms Heuristics</span>
+                    <span class="rc-name">Instant Rule Checks</span>
                     <span class="rc-phase">Digital</span>
                 </div>
                 <div class="recap-card" data-phase="2">
                     <span class="rc-num">07</span>
-                    <span class="rc-name">Identity Fingerprint Graph</span>
+                    <span class="rc-name">Account Linking</span>
                     <span class="rc-phase">Digital</span>
                 </div>
                 <div class="recap-card verdict-card" data-phase="3">
                     <span class="rc-num">08</span>
-                    <span class="rc-name">Quad-Model AI Fusion</span>
+                    <span class="rc-name">Smart AI Decision</span>
                     <span class="rc-phase">Verdict</span>
                 </div>
             </div>
