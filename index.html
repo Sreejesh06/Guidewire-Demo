@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Aegis — Live System Demo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 <!-- PeerJS for reliable P2P collaboration -->
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
@@ -111,7 +111,7 @@
 
   body {
     font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--gray-50);
+    background: #fdfcfb;
     color: var(--gray-900);
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
@@ -230,13 +230,26 @@
   .stat-card {
     background: #fff;
     border: 1px solid var(--gray-200);
-    border-radius: 12px;
-    padding: 1.125rem 1.25rem;
+    border-radius: 0;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
   }
 
-  .stat-label { font-size: 13px; color: var(--gray-600); margin-bottom: 6px; font-weight: 500; }
-  .stat-value { font-size: 24px; font-weight: 600; color: var(--gray-900); letter-spacing: -0.02em; }
-  .stat-delta { font-size: 12px; color: var(--emerald-600); margin-top: 4px; font-weight: 500; }
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 4px; height: 100%;
+    background: var(--blue-600);
+    opacity: 0.8;
+  }
+
+  .stat-card.alert::after { background: var(--red-600); }
+  .stat-card.success::after { background: var(--emerald-600); }
+
+  .stat-label { font-family: 'IBM Plex Mono'; font-size: 11px; color: var(--gray-500); margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  .stat-value { font-family: 'IBM Plex Mono'; font-size: 28px; font-weight: 600; color: var(--gray-900); letter-spacing: -0.02em; }
+  .stat-delta { font-family: 'IBM Plex Mono'; font-size: 10px; color: var(--emerald-600); margin-top: 6px; font-weight: 600; }
 
   /* ── Pipeline ── */
   .pipeline-card {
@@ -293,9 +306,10 @@
   .step {
     flex: 1;
     min-width: 110px;
-    border-radius: 10px;
-    padding: 14px 12px 12px;
-    border: 1.5px solid transparent;
+    border-radius: 0;
+    padding: 18px 14px;
+    border: 1px solid var(--gray-200);
+    background: #fff;
     transition: var(--transition);
     position: relative;
     cursor: default;
@@ -425,28 +439,28 @@
   .risk-panel {
     background: #fff;
     border: 1px solid var(--gray-200);
-    border-radius: 12px;
+    border-radius: 0;
     padding: 1.5rem 1.75rem;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    gap: 1.5rem;
   }
 
-  .risk-left { border-right: 1px solid var(--gray-200); padding-right: 1rem; }
-  .risk-section-label { font-size: 12px; color: var(--gray-600); margin-bottom: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  .risk-left { border-right: 1px solid var(--gray-200); padding-right: 1.5rem; }
+  .risk-section-label { font-family: 'IBM Plex Mono'; font-size: 11px; color: var(--gray-500); margin-bottom: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
 
   .risk-badge {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 10px 18px;
-    border-radius: 8px;
-    font-size: 15px;
+    justify-content: center;
+    padding: 12px;
+    font-family: 'IBM Plex Mono';
+    font-size: 12px;
     font-weight: 600;
     border: 1.5px solid transparent;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
     transition: var(--transition);
-    opacity: 0.3;
+    opacity: 0.1;
   }
 
   .risk-badge.visible { opacity: 1; }
@@ -455,8 +469,8 @@
   .risk-badge.LOW  { background: var(--emerald-50); border-color: var(--emerald-600); color: var(--emerald-700); }
 
   .risk-score-bar {
-    height: 8px;
-    border-radius: 100px;
+    height: 4px;
+    border-radius: 0;
     background: var(--gray-200);
     overflow: hidden;
     margin-top: 8px;
@@ -464,22 +478,20 @@
 
   .risk-score-fill {
     height: 100%;
-    border-radius: 100px;
     width: 0;
-    transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+    transition: width 0.8s var(--easing);
     background: var(--red-500);
   }
 
   .risk-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
   .risk-detail-item {
-    padding: 9px 11px;
-    background: var(--gray-50);
-    border-radius: 8px;
+    padding: 12px;
+    background: #fff;
     border: 1px solid var(--gray-200);
   }
-  .rdi-label { font-size: 11px; color: var(--gray-600); margin-bottom: 3px; font-weight: 500; }
-  .rdi-value { font-size: 14px; font-weight: 600; color: var(--gray-900); }
+  .rdi-label { font-family: 'IBM Plex Mono'; font-size: 10px; color: var(--gray-500); margin-bottom: 4px; font-weight: 600; text-transform: uppercase; }
+  .rdi-value { font-family: 'IBM Plex Mono'; font-size: 14px; font-weight: 600; color: var(--gray-900); }
 
   /* ── Rider card ── */
   .rider-card {
@@ -594,290 +606,226 @@
 <body>
 
 <!-- ── Header ── -->
-<header>
+<header style="background: #fff; border-bottom: 1px solid var(--gray-200); height: 72px;">
   <div class="logo">
-    <div class="logo-icon">A</div>
+    <div class="logo-icon" style="border-radius: 0; background: #000;">A</div>
     <div>
-      <div class="logo-text">Aegis</div>
-      <div class="logo-sub">Parametric Insurance Platform</div>
+      <div class="logo-text" style="font-family: 'IBM Plex Mono'; font-weight: 600; letter-spacing: 0.1em;">AEGIS</div>
+      <div class="logo-sub" style="text-transform: uppercase; font-size: 10px; font-weight: 600; color: var(--gray-500);">Parametric Stack</div>
     </div>
   </div>
-  <nav style="display: flex; gap: 2rem; margin-left: 3rem;">
-    <a href="logic.html" style="text-decoration: none; color: var(--gray-600); font-size: 14px; font-weight: 500; transition: var(--transition);">Insurance Logic</a>
-    <a href="#" style="text-decoration: none; color: var(--gray-900); font-size: 14px; font-weight: 600; border-bottom: 2px solid var(--blue-600); padding-bottom: 4px;">System Demo</a>
+  <nav style="display: flex; gap: 3rem; margin-left: 4rem;">
+    <a href="logic.html" style="text-decoration: none; color: var(--gray-500); font-family: 'IBM Plex Mono'; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; transition: var(--transition);">Insurance Logic</a>
+    <a href="#" style="text-decoration: none; color: #000; font-family: 'IBM Plex Mono'; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #000; padding-bottom: 4px;">System Demo</a>
   </nav>
   <div class="header-right">
-    <div class="status-pill" id="sessionStatus">
+    <div class="status-pill" id="sessionStatus" style="border-radius: 0; border-color: var(--gray-300);">
       <div class="status-dot"></div>
-      <span id="sessionText">Live Session: OFF</span>
+      <span id="sessionText" style="font-family: 'IBM Plex Mono'; font-size: 11px; font-weight: 600;">LIVE SESSION: OFF</span>
     </div>
-    <button class="collab-btn" onclick="toggleCollaboration()">
-      <span class="collab-icon">&#128640;</span>
-      Start Live Collaboration
+    <button class="collab-btn" onclick="toggleCollaboration()" style="border-radius: 0; background: #000; font-family: 'IBM Plex Mono'; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
+      Start Collaboration
     </button>
   </div>
 </header>
 
 <!-- ── Main ── -->
 <main>
-  <h1 class="page-title">System Demo — Event Pipeline</h1>
-  <p class="page-sub">Real-time parametric payout engine · Koramangala Zone · Mumbai Storm Scenario</p>
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem; border-bottom: 1px solid var(--gray-200); padding-bottom: 1.5rem;">
+    <div>
+      <h1 class="page-title" style="font-family: 'DM Sans'; font-weight: 700; font-size: 32px; letter-spacing: -0.03em;">System Demo — Event Pipeline</h1>
+      <p class="page-sub" style="font-family: 'IBM Plex Mono'; text-transform: uppercase; font-size: 11px; color: var(--gray-500); font-weight: 600;">Real-time parametric payout engine · Koramangala Zone · Mumbai Storm</p>
+    </div>
+  </div>
 
   <!-- Stats -->
   <div class="stats">
     <div class="stat-card">
       <div class="stat-label">Active Riders</div>
       <div class="stat-value">5,284</div>
-      <div class="stat-delta">&#9650; 12% vs last week</div>
+      <div class="stat-delta">↑ 12% VOLUME</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card alert">
       <div class="stat-label">Zone Status</div>
       <div class="stat-value" id="zoneStatus" style="color:var(--red-600);">HALTED</div>
-      <div class="stat-delta" style="color:var(--red-600);">Rainfall: 82mm</div>
+      <div class="stat-delta" style="color:var(--red-600);">THRESHOLD EXCEEDED: 82MM</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card success">
       <div class="stat-label">Payouts Fired</div>
       <div class="stat-value" id="payoutCount">0</div>
-      <div class="stat-delta">This event</div>
+      <div class="stat-delta">IDEMPOTENCY: VERIFIED</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card success">
       <div class="stat-label">Pool Health</div>
       <div class="stat-value" style="color:var(--emerald-600);">94%</div>
-      <div class="stat-delta">Reserves: &#8377;42.8L</div>
+      <div class="stat-delta">RESERVES: ₹42.8L</div>
     </div>
   </div>
 
   <!-- Pipeline -->
-  <div class="pipeline-card">
+  <div class="pipeline-card" style="border-radius: 0; border: 1px solid var(--gray-200); padding: 2.5rem; margin-bottom: 2rem;">
     <div class="pipeline-header">
       <div>
-        <div class="pipeline-title">Event Processing Pipeline</div>
-        <div class="pipeline-hint">Click Start Simulation to run a live payout scenario</div>
+        <div class="pipeline-title" style="font-family: 'IBM Plex Mono'; text-transform: uppercase; letter-spacing: 0.1em; font-size: 14px;">Event Processing Pipeline</div>
+        <div class="pipeline-hint" style="font-family: 'IBM Plex Mono'; font-size: 10px; color: var(--gray-500);">Real-time parametric payout orchestration</div>
       </div>
-      <button class="start-btn" id="startBtn" onclick="startSimulation()">
-        <span>&#9654;</span> Start Simulation
+      <button class="start-btn" id="startBtn" onclick="startSimulation()" style="border-radius: 0; background: #000; font-family: 'IBM Plex Mono'; font-size: 11px; text-transform: uppercase; font-weight: 600; padding: 12px 24px;">
+        Start Simulation
       </button>
     </div>
 
-    <div class="pipeline-flow" id="pipelineFlow">
+    <div class="pipeline-flow" id="pipelineFlow" style="gap: 12px; overflow-x: auto; padding-bottom: 1rem;">
 
-      <!-- Step 1: Driver Click -->
       <div class="step-wrapper">
-        <div class="step blue" id="step-0">
+        <div class="step" id="step-0" style="border-top: 3px solid var(--blue-600);">
           <span class="step-num">01</span>
-          <span class="step-icon">&#128246;</span>
-          <div class="step-name">Driver Click</div>
-          <div class="step-status" id="status-0">Waiting...</div>
+          <div class="step-name" style="font-family: 'IBM Plex Mono'; font-size: 10px; font-weight: 600;">DRIVER CLICK</div>
+          <div class="step-status" id="status-0" style="font-family: 'IBM Plex Mono'; font-size: 9px; opacity: 0.6;">WAITING</div>
         </div>
       </div>
 
       <div class="arrow" id="arrow-0">
-        <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
-          <path d="M1 8H17M17 8L11 2M17 8L11 14" stroke="#D1D5DB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <svg width="20" height="16" viewBox="0 0 20 16" fill="none"><path d="M1 8H17M17 8L11 2M17 8L11 14" stroke="#D1D5DB" stroke-width="1.5"/></svg>
       </div>
 
-      <!-- Step 2: Event Created -->
       <div class="step-wrapper">
-        <div class="step blue" id="step-1">
+        <div class="step" id="step-1" style="border-top: 3px solid var(--blue-600);">
           <span class="step-num">02</span>
-          <span class="step-icon">&#128203;</span>
-          <div class="step-name">Event Created</div>
-          <div class="step-status" id="status-1">Idle</div>
+          <div class="step-name" style="font-family: 'IBM Plex Mono'; font-size: 10px; font-weight: 600;">EVENT GEN</div>
+          <div class="step-status" id="status-1" style="font-family: 'IBM Plex Mono'; font-size: 9px; opacity: 0.6;">IDLE</div>
         </div>
       </div>
 
       <div class="arrow" id="arrow-1">
-        <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
-          <path d="M1 8H17M17 8L11 2M17 8L11 14" stroke="#D1D5DB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <svg width="20" height="16" viewBox="0 0 20 16" fill="none"><path d="M1 8H17M17 8L11 2M17 8L11 14" stroke="#D1D5DB" stroke-width="1.5"/></svg>
       </div>
 
-      <!-- Step 3: Validation -->
       <div class="step-wrapper">
-        <div class="step yellow" id="step-2">
+        <div class="step" id="step-2" style="border-top: 3px solid var(--amber-600);">
           <span class="step-num">03</span>
-          <span class="step-icon">&#9989;</span>
-          <div class="step-name">Validation</div>
-          <div class="step-status" id="status-2">Idle</div>
+          <div class="step-name" style="font-family: 'IBM Plex Mono'; font-size: 10px; font-weight: 600;">VALIDATION</div>
+          <div class="step-status" id="status-2" style="font-family: 'IBM Plex Mono'; font-size: 9px; opacity: 0.6;">IDLE</div>
         </div>
       </div>
 
       <div class="arrow" id="arrow-2">
-        <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
-          <path d="M1 8H17M17 8L11 2M17 8L11 14" stroke="#D1D5DB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <svg width="20" height="16" viewBox="0 0 20 16" fill="none"><path d="M1 8H17M17 8L11 2M17 8L11 14" stroke="#D1D5DB" stroke-width="1.5"/></svg>
       </div>
 
-      <!-- Step 4: Kafka Topic -->
       <div class="step-wrapper">
-        <div class="step purple" id="step-3">
+        <div class="step" id="step-3" style="border-top: 3px solid var(--cyan-600);">
           <span class="step-num">04</span>
-          <span class="step-icon">&#128296;</span>
-          <div class="step-name">Kafka Topic</div>
-          <div class="step-status" id="status-3">Idle</div>
+          <div class="step-name" style="font-family: 'IBM Plex Mono'; font-size: 10px; font-weight: 600;">KAFKA TOPIC</div>
+          <div class="step-status" id="status-3" style="font-family: 'IBM Plex Mono'; font-size: 9px; opacity: 0.6;">IDLE</div>
         </div>
       </div>
 
       <div class="arrow" id="arrow-3">
-        <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
-          <path d="M1 8H17M17 8L11 2M17 8L11 14" stroke="#D1D5DB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <svg width="20" height="16" viewBox="0 0 20 16" fill="none"><path d="M1 8H17M17 8L11 2M17 8L11 14" stroke="#D1D5DB" stroke-width="1.5"/></svg>
       </div>
 
-      <!-- Step 5: Consumer Processing -->
       <div class="step-wrapper">
-        <div class="step orange" id="step-4">
+        <div class="step" id="step-4" style="border-top: 3px solid var(--orange-600);">
           <span class="step-num">05</span>
-          <span class="step-icon">&#9881;&#65039;</span>
-          <div class="step-name">Consumer Processing</div>
-          <div class="step-status" id="status-4">Idle</div>
+          <div class="step-name" style="font-family: 'IBM Plex Mono'; font-size: 10px; font-weight: 600;">CONSUMER</div>
+          <div class="step-status" id="status-4" style="font-family: 'IBM Plex Mono'; font-size: 9px; opacity: 0.6;">IDLE</div>
         </div>
       </div>
 
       <div class="arrow" id="arrow-4">
-        <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
-          <path d="M1 8H17M17 8L11 2M17 8L11 14" stroke="#D1D5DB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <svg width="20" height="16" viewBox="0 0 20 16" fill="none"><path d="M1 8H17M17 8L11 2M17 8L11 14" stroke="#D1D5DB" stroke-width="1.5"/></svg>
       </div>
 
-      <!-- Step 6: AI Model -->
       <div class="step-wrapper">
-        <div class="step pink" id="step-5">
+        <div class="step" id="step-5" style="border-top: 3px solid var(--indigo-600);">
           <span class="step-num">06</span>
-          <span class="step-icon">&#129302;</span>
-          <div class="step-name">AI Model</div>
-          <div class="step-status" id="status-5">Idle</div>
+          <div class="step-name" style="font-family: 'IBM Plex Mono'; font-size: 10px; font-weight: 600;">AI MODEL</div>
+          <div class="step-status" id="status-5" style="font-family: 'IBM Plex Mono'; font-size: 9px; opacity: 0.6;">IDLE</div>
         </div>
       </div>
 
       <div class="arrow" id="arrow-5">
-        <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
-          <path d="M1 8H17M17 8L11 2M17 8L11 14" stroke="#D1D5DB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <svg width="20" height="16" viewBox="0 0 20 16" fill="none"><path d="M1 8H17M17 8L11 2M17 8L11 14" stroke="#D1D5DB" stroke-width="1.5"/></svg>
       </div>
 
-      <!-- Step 7: Risk Score Output -->
       <div class="step-wrapper">
-        <div class="step green" id="step-6">
+        <div class="step" id="step-6" style="border-top: 3px solid var(--emerald-600);">
           <span class="step-num">07</span>
-          <span class="step-icon">&#128200;</span>
-          <div class="step-name">Risk Score Output</div>
-          <div class="step-status" id="status-6">Idle</div>
+          <div class="step-name" style="font-family: 'IBM Plex Mono'; font-size: 10px; font-weight: 600;">OUTPUT</div>
+          <div class="step-status" id="status-6" style="font-family: 'IBM Plex Mono'; font-size: 9px; opacity: 0.6;">IDLE</div>
         </div>
       </div>
 
-    </div>
-
-    <!-- Legend -->
-    <div class="legend">
-      <div class="legend-item"><div class="legend-dot ld-blue"></div>User action</div>
-      <div class="legend-item"><div class="legend-dot ld-yellow"></div>Validation</div>
-      <div class="legend-item"><div class="legend-dot ld-purple"></div>Kafka</div>
-      <div class="legend-item"><div class="legend-dot ld-orange"></div>Processing</div>
-      <div class="legend-item"><div class="legend-dot ld-pink"></div>AI Model</div>
-      <div class="legend-item"><div class="legend-dot ld-green"></div>Output</div>
     </div>
   </div>
 
-  <!-- Two column: Event log + Risk panel -->
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
 
     <!-- Event Log -->
-    <div class="log-card">
-      <div class="log-title">&#128196; Event Log</div>
-      <div class="log-entries" id="logEntries">
-        <div class="log-entry">
+    <div class="log-card" style="border-radius: 0; border: 1px solid var(--gray-200);">
+      <div class="log-title" style="font-family: 'IBM Plex Mono'; text-transform: uppercase; font-size: 11px; letter-spacing: 0.1em; border-bottom: 1px solid var(--gray-200); padding-bottom: 0.75rem; color: var(--gray-500); font-weight: 600;">System Event Stream</div>
+      <div class="log-entries" id="logEntries" style="font-family: 'IBM Plex Mono'; height: 350px;">
+        <div class="log-entry" style="border-radius: 0; background: #fff; border-color: var(--gray-100);">
           <span class="log-time">10:24:01</span>
-          <span class="log-tag blue">SYSTEM</span>
-          <span class="log-msg">Aegis pipeline initialized. Monitoring Zone H3-KOR-4A.</span>
-        </div>
-        <div class="log-entry">
-          <span class="log-time">10:24:15</span>
-          <span class="log-tag yellow">WEATHER</span>
-          <span class="log-msg">IMD API: Rainfall 82mm in 1hr. Threshold 60mm exceeded.</span>
-        </div>
-        <div class="log-entry">
-          <span class="log-time">10:24:16</span>
-          <span class="log-tag purple">KAFKA</span>
-          <span class="log-msg">Zone HALTED event published to zone-state-changes topic.</span>
+          <span class="log-tag blue" style="border-radius: 0;">SYSTEM</span>
+          <span class="log-msg">Pipeline initialized. Monitoring Zone H3-KOR-4A.</span>
         </div>
       </div>
     </div>
 
-    <!-- Risk panel -->
+    <!-- Risk Panel -->
     <div class="risk-panel">
-
-      <!-- Left: Rider + triggers -->
       <div class="risk-left">
-        <div class="risk-section-label">Active Rider</div>
-        <div class="rider-card">
-          <div class="rider-avatar">RA</div>
-          <div>
-            <div class="rider-name">Rahul Anand</div>
-            <div class="rider-zone">Zone H3-KOR-4A · Blinkit Partner</div>
-          </div>
-        </div>
-
-        <div class="risk-section-label" style="margin-top:12px;">Trigger Conditions</div>
-        <div class="trigger-row">
-          <span class="trigger-label">&#127783; Rainfall (1hr)</span>
-          <span class="trigger-value alert">82mm &gt; 60mm &#9888;</span>
-        </div>
-        <div class="trigger-row">
-          <span class="trigger-label">&#128248; GPS Active</span>
-          <span class="trigger-value ok">Confirmed &#10003;</span>
-        </div>
-        <div class="trigger-row">
-          <span class="trigger-label">&#128737; Fraud Score</span>
-          <span class="trigger-value ok">0.04 — Clear &#10003;</span>
-        </div>
-        <div class="trigger-row">
-          <span class="trigger-label">&#128179; Idempotency</span>
-          <span class="trigger-value ok">Key Stored &#10003;</span>
-        </div>
-      </div>
-
-      <!-- Right: Risk output -->
-      <div class="risk-right">
         <div class="risk-section-label">XGBoost Risk Score</div>
-        <div class="risk-badge HIGH" id="riskBadge">
-          &#9888;&#65039; RISK: HIGH
+        <div class="risk-badge HIGH" id="riskBadge">ANALYZING...</div>
+        <div class="risk-score-bar">
+          <div class="risk-score-fill" id="riskFill"></div>
         </div>
-        <div style="margin-top:4px;">
-          <div style="font-size:11px;color:#6B7280;margin-bottom:4px;">Loss Fraction (Lf)</div>
-          <div class="risk-score-bar">
-            <div class="risk-score-fill" id="riskFill" style="width:0%"></div>
-          </div>
-          <div style="font-size:11px;color:#6B7280;margin-top:4px;display:flex;justify-content:space-between;">
-            <span>0.0</span>
-            <span id="lfScore" style="font-weight:600;color:#111;">—</span>
-            <span>1.0</span>
-          </div>
+        <div style="display: flex; justify-content: space-between; margin-top: 0.75rem; font-family: 'IBM Plex Mono'; font-size: 10px; font-weight: 600;">
+          <span style="opacity: 0.5;">PROBABILITY</span>
+          <span id="lfScore">0%</span>
         </div>
 
-        <div class="risk-detail-grid" style="margin-top:1rem;">
-          <div class="risk-detail-item">
-            <div class="rdi-label">Weekly Premium</div>
-            <div class="rdi-value" id="premiumVal">&#8377;—</div>
+        <div class="risk-section-label" style="margin-top:2rem;">Trigger Proof</div>
+        <div style="font-family: 'IBM Plex Mono'; font-size: 11px; border: 1px solid var(--gray-200); padding: 1rem;">
+          <div style="display:flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="opacity: 0.6;">RAINFALL</span>
+            <span style="font-weight: 700; color: var(--red-600);">82MM > 60MM</span>
           </div>
-          <div class="risk-detail-item">
-            <div class="rdi-label">Payout Amount</div>
-            <div class="rdi-value" id="payoutVal" style="color:var(--emerald-600);">&#8377;—</div>
+          <div style="display:flex; justify-content: space-between; margin-bottom: 6px;">
+            <span style="opacity: 0.6;">GPS SYNC</span>
+            <span style="font-weight: 700; color: var(--emerald-600);">VERIFIED</span>
           </div>
-          <div class="risk-detail-item">
-            <div class="rdi-label">Model</div>
-            <div class="rdi-value">XGBoost</div>
-          </div>
-          <div class="risk-detail-item">
-            <div class="rdi-label">Latency</div>
-            <div class="rdi-value" id="latencyVal">—ms</div>
+          <div style="display:flex; justify-content: space-between;">
+            <span style="opacity: 0.6;">FRAUD SCORE</span>
+            <span style="font-weight: 700; color: var(--emerald-600);">0.04 (CLEAR)</span>
           </div>
         </div>
       </div>
 
+      <div class="risk-detail-grid">
+        <div class="risk-detail-item">
+          <div class="rdi-label">Premium</div>
+          <div class="rdi-value" id="premiumVal">₹--</div>
+        </div>
+        <div class="risk-detail-item">
+          <div class="rdi-label">Payout</div>
+          <div class="rdi-value" id="payoutVal" style="color:var(--emerald-600);">₹--</div>
+        </div>
+        <div class="risk-detail-item">
+          <div class="rdi-label">Latency</div>
+          <div class="rdi-value" id="latencyVal">--ms</div>
+        </div>
+        <div class="risk-detail-item">
+          <div class="rdi-label">Shard</div>
+          <div class="rdi-value">IND-WEST-1</div>
+        </div>
+        <div class="risk-detail-item" style="grid-column: span 2; border-top: 2px solid var(--gray-900);">
+           <div class="rdi-label">Idempotency Key</div>
+           <div class="rdi-value" style="font-size: 10px; opacity: 0.6;">PIK-82741-9384-AX</div>
+        </div>
+      </div>
     </div>
-
   </div>
 </main>
 
