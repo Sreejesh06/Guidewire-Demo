@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Aegis — Live System Demo</title>
+<script src="https://cdn.jsdelivr.net/npm/togetherjs@0.0.1/togetherjs-min.js" defer></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue-bg: #E6F1FB; --blue-border: #185FA5; --blue-text: #0C447C;
+    --yellow-bg: #FAEEDA; --yellow-border: #BA7517; --yellow-text: #633806;
+    --purple-bg: #EEEDFE; --purple-border: #534AB7; --purple-text: #3C3489;
+    --orange-bg: #FAECE7; --orange-border: #993C1D; --orange-text: #712B13;
+    --pink-bg: #FBEAF0; --pink-border: #993556; --pink-text: #72243E;
+    --green-bg: #EAF3DE; --green-border: #3B6D11; --green-text: #27500A;
+    --active-scale: 1.06;
+    --transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #F8F9FA;
+    color: #1a1a1a;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    background: #fff;
+    border-bottom: 1px solid #E5E7EB;
+    padding: 0 2rem;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #185FA5, #534AB7);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .logo-text { font-size: 18px; font-weight: 600; color: #111; }
+  .logo-sub { font-size: 12px; color: #6B7280; margin-top: 1px; }
+
+  .header-right { display: flex; align-items: center; gap: 12px; }
+
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid #E5E7EB;
+    background: #F9FAFB;
+    color: #6B7280;
+    transition: var(--transition);
+  }
+
+  .status-pill.active {
+    background: #EAF3DE;
+    border-color: #3B6D11;
+    color: #27500A;
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #D1D5DB;
+    transition: var(--transition);
+  }
+
+  .status-pill.active .status-dot {
+    background: #3B6D11;
+    box-shadow: 0 0 0 3px rgba(59,109,17,0.2);
+    animation: pulse 1.8s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 2px rgba(59,109,17,0.25); }
+    50% { box-shadow: 0 0 0 5px rgba(59,109,17,0.08); }
+  }
+
+  .collab-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 16px;
+    border-radius: 8px;
+    border: 1px solid #185FA5;
+    background: #185FA5;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .collab-btn:hover { background: #0C447C; border-color: #0C447C; }
+  .collab-icon { font-size: 14px; }
+
+  /* ── Main ── */
+  main { max-width: 1200px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
+
+  .page-title { font-size: 22px; font-weight: 600; color: #111; margin-bottom: 4px; }
+  .page-sub { font-size: 14px; color: #6B7280; margin-bottom: 2.5rem; }
+
+  /* ── Stats row ── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+  }
+
+  .stat-label { font-size: 12px; color: #6B7280; margin-bottom: 4px; }
+  .stat-value { font-size: 22px; font-weight: 600; color: #111; }
+  .stat-delta { font-size: 11px; color: #3B6D11; margin-top: 2px; }
+
+  /* ── Pipeline ── */
+  .pipeline-card {
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 16px;
+    padding: 2rem 1.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .pipeline-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+  }
+
+  .pipeline-title { font-size: 15px; font-weight: 600; color: #111; }
+  .pipeline-hint { font-size: 12px; color: #9CA3AF; }
+
+  .start-btn {
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: 1px solid #185FA5;
+    background: #185FA5;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .start-btn:hover { background: #0C447C; }
+  .start-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ── Steps flow ── */
+  .pipeline-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+  }
+
+  .step-wrapper {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .step {
+    flex: 1;
+    min-width: 110px;
+    border-radius: 12px;
+    padding: 14px 12px 12px;
+    border: 1.5px solid transparent;
+    transition: var(--transition);
+    position: relative;
+    cursor: default;
+  }
+
+  .step.blue   { background: var(--blue-bg);   border-color: #B5D4F4; }
+  .step.yellow { background: var(--yellow-bg); border-color: #FAC775; }
+  .step.purple { background: var(--purple-bg); border-color: #CECBF6; }
+  .step.orange { background: var(--orange-bg); border-color: #F5C4B3; }
+  .step.pink   { background: var(--pink-bg);   border-color: #F4C0D1; }
+  .step.green  { background: var(--green-bg);  border-color: #C0DD97; }
+
+  .step.active.blue   { border-color: var(--blue-border);   box-shadow: 0 0 0 3px rgba(24,95,165,0.18); transform: scale(var(--active-scale)); }
+  .step.active.yellow { border-color: var(--yellow-border); box-shadow: 0 0 0 3px rgba(186,117,23,0.18); transform: scale(var(--active-scale)); }
+  .step.active.purple { border-color: var(--purple-border); box-shadow: 0 0 0 3px rgba(83,74,183,0.18); transform: scale(var(--active-scale)); }
+  .step.active.orange { border-color: var(--orange-border); box-shadow: 0 0 0 3px rgba(153,60,29,0.18); transform: scale(var(--active-scale)); }
+  .step.active.pink   { border-color: var(--pink-border);   box-shadow: 0 0 0 3px rgba(153,53,86,0.18); transform: scale(var(--active-scale)); }
+  .step.active.green  { border-color: var(--green-border);  box-shadow: 0 0 0 3px rgba(59,109,17,0.18); transform: scale(var(--active-scale)); }
+
+  .step.done { opacity: 0.65; }
+
+  .step-icon { font-size: 18px; margin-bottom: 6px; display: block; }
+
+  .step-num {
+    position: absolute;
+    top: -8px;
+    left: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 100px;
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    color: #6B7280;
+  }
+
+  .step-name { font-size: 11px; font-weight: 600; color: #111; margin-bottom: 3px; line-height: 1.3; }
+  .step-status { font-size: 10px; color: #6B7280; min-height: 14px; transition: var(--transition); }
+
+  .step.active .step-status { font-weight: 500; }
+  .step.active.blue   .step-status { color: var(--blue-text); }
+  .step.active.yellow .step-status { color: var(--yellow-text); }
+  .step.active.purple .step-status { color: var(--purple-text); }
+  .step.active.orange .step-status { color: var(--orange-text); }
+  .step.active.pink   .step-status { color: var(--pink-text); }
+  .step.active.green  .step-status { color: var(--green-text); font-weight: 700; font-size: 11px; }
+
+  /* Arrow */
+  .arrow {
+    flex-shrink: 0;
+    width: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+  }
+  .arrow svg { transition: var(--transition); }
+  .arrow.lit svg path { stroke: #185FA5; }
+
+  /* ── Legend ── */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #F3F4F6;
+  }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #6B7280; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .ld-blue   { background: var(--blue-border); }
+  .ld-yellow { background: var(--yellow-border); }
+  .ld-purple { background: var(--purple-border); }
+  .ld-orange { background: var(--orange-border); }
+  .ld-pink   { background: var(--pink-border); }
+  .ld-green  { background: var(--green-border); }
+
+  /* ── Event log ── */
+  .log-card {
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 16px;
+    padding: 1.5rem 1.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .log-title { font-size: 14px; font-weight: 600; color: #111; margin-bottom: 1rem; }
+
+  .log-entries { display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; }
+
+  .log-entry {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 12px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: #F9FAFB;
+    border: 1px solid #F3F4F6;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .log-time { color: #9CA3AF; flex-shrink: 0; font-family: monospace; font-size: 11px; }
+  .log-tag {
+    flex-shrink: 0;
+    padding: 1px 7px;
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .log-tag.blue   { background: var(--blue-bg);   color: var(--blue-text); }
+  .log-tag.yellow { background: var(--yellow-bg); color: var(--yellow-text); }
+  .log-tag.purple { background: var(--purple-bg); color: var(--purple-text); }
+  .log-tag.orange { background: var(--orange-bg); color: var(--orange-text); }
+  .log-tag.pink   { background: var(--pink-bg);   color: var(--pink-text); }
+  .log-tag.green  { background: var(--green-bg);  color: var(--green-text); }
+
+  .log-msg { color: #374151; }
+
+  /* ── Risk output panel ── */
+  .risk-panel {
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 16px;
+    padding: 1.5rem 1.75rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .risk-left { border-right: 1px solid #F3F4F6; padding-right: 1rem; }
+  .risk-section-label { font-size: 12px; color: #9CA3AF; margin-bottom: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  .risk-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    border: 2px solid transparent;
+    margin-bottom: 8px;
+    transition: var(--transition);
+    opacity: 0.3;
+  }
+
+  .risk-badge.visible { opacity: 1; }
+  .risk-badge.HIGH { background: #FCEBEB; border-color: #E24B4A; color: #791F1F; }
+  .risk-badge.MED  { background: #FAEEDA; border-color: #EF9F27; color: #633806; }
+  .risk-badge.LOW  { background: #EAF3DE; border-color: #639922; color: #27500A; }
+
+  .risk-score-bar {
+    height: 8px;
+    border-radius: 100px;
+    background: #F3F4F6;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+
+  .risk-score-fill {
+    height: 100%;
+    border-radius: 100px;
+    width: 0;
+    transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+    background: #E24B4A;
+  }
+
+  .risk-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+  .risk-detail-item {
+    padding: 8px 10px;
+    background: #F9FAFB;
+    border-radius: 8px;
+    border: 1px solid #F3F4F6;
+  }
+  .rdi-label { font-size: 10px; color: #9CA3AF; margin-bottom: 2px; }
+  .rdi-value { font-size: 13px; font-weight: 600; color: #111; }
+
+  /* ── Rider card ── */
+  .rider-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: #F9FAFB;
+    border-radius: 10px;
+    border: 1px solid #F3F4F6;
+    margin-bottom: 12px;
+  }
+
+  .rider-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--blue-bg);
+    border: 2px solid var(--blue-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--blue-text);
+    flex-shrink: 0;
+  }
+
+  .rider-name { font-size: 13px; font-weight: 600; color: #111; }
+  .rider-zone { font-size: 11px; color: #6B7280; }
+
+  /* ── Rain trigger toggle ── */
+  .trigger-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: #F9FAFB;
+    border-radius: 8px;
+    border: 1px solid #F3F4F6;
+    margin-bottom: 8px;
+  }
+  .trigger-label { font-size: 12px; color: #374151; }
+  .trigger-value { font-size: 12px; font-weight: 600; }
+  .trigger-value.alert { color: #E24B4A; }
+  .trigger-value.ok    { color: #3B6D11; }
+
+  /* ── Floating collab btn ── */
+  .floating-collab {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  .floating-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 100px;
+    border: none;
+    background: #185FA5;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(24,95,165,0.35);
+    transition: var(--transition);
+  }
+  .floating-btn:hover { background: #0C447C; transform: scale(1.03); }
+  .floating-btn.active { background: #3B6D11; box-shadow: 0 4px 20px rgba(59,109,17,0.35); }
+
+  .floating-status {
+    background: rgba(0,0,0,0.7);
+    color: #fff;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 100px;
+    display: none;
+  }
+  .floating-status.show { display: block; }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .risk-panel { grid-template-columns: 1fr; }
+    .risk-left { border-right: none; border-bottom: 1px solid #F3F4F6; padding-right: 0; padding-bottom: 1rem; }
+    .pipeline-flow { gap: 0; }
+    header { padding: 0 1rem; }
+    main { padding: 1.5rem 1rem; }
+    .step-name { font-size: 9px; }
+    .step { min-width: 80px; padding: 10px 8px 8px; }
+    .logo-sub { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">A</div>
+    <div>
+      <div class="logo-text">Aegis</div>
+      <div class="logo-sub">Parametric Insurance Platform</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="status-pill" id="sessionStatus">
+      <div class="status-dot"></div>
+      <span id="sessionText">Live Session: OFF</span>
+    </div>
+    <button class="collab-btn" onclick="toggleCollaboration()">
+      <span class="collab-icon">&#128640;</span>
+      Start Live Collaboration
+    </button>
+  </div>
+</header>
+
+<!-- ── Main ── -->
+<main>
+  <h1 class="page-title">System Demo — Event Pipeline</h1>
+  <p class="page-sub">Real-time parametric payout engine · Koramangala Zone · Mumbai Storm Scenario</p>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-label">Active Riders</div>
+      <div class="stat-value">5,284</div>
+      <div class="stat-delta">&#9650; 12% vs last week</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Zone Status</div>
+      <div class="stat-value" id="zoneStatus" style="color:#E24B4A;">HALTED</div>
+      <div class="stat-delta" style="color:#E24B4A;">Rainfall: 82mm</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Payouts Fired</div>
+      <div class="stat-value" id="payoutCount">0</div>
+      <div class="stat-delta">This event</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Pool Health</div>
+      <div class="stat-value" style="color:#3B6D11;">94%</div>
+      <div class="stat-delta">Reserves: &#8377;42.8L</div>
+    </div>
+  </div>
+
+  <!-- Pipeline -->
+  <div class="pipeline-card">
+    <div class="pipeline-header">
+      <div>
+        <div class="pipeline-title">Event Processing Pipeline</div>
+        <div class="pipeline-hint">Click Start Simulation to run a live payout scenario</div>
+      </div>
+      <button class="start-btn" id="startBtn" onclick="startSimulation()">
+        <span>&#9654;</span> Start Simulation
+      </button>
+    </div>
+
+    <div class="pipeline-flow" id="pipelineFlow">
+
+      <!-- Step 1: Driver Click -->
+      <div class="step-wrapper">
+        <div class="step blue" id="step-0">
+          <span class="step-num">01</span>
+          <span class="step-icon">&#128246;</span>
+          <div class="step-name">Driver Click</div>
+          <div class="step-status" id="status-0">Waiting...</div>
+        </div>
+      </div>
+
+      <div class="arrow" id="arrow-0">
+        <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
+          <path d="M1 8H17M17 8L11 2M17 8L11 14" stroke="#D1D5DB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <!-- Step 2: Event Created -->
+      <div class="step-wrapper">
+        <div class="step blue" id="step-1">
+          <span class="step-num">02</span>
+          <span class="step-icon">&#128203;</span>
+          <div class="step-name">Event Created</div>
+          <div class="step-status" id="status-1">Idle</div>
+        </div>
+      </div>
+
+      <div class="arrow" id="arrow-1">
+        <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
+          <path d="M1 8H17M17 8L11 2M17 8L11 14" stroke="#D1D5DB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <!-- Step 3: Validation -->
+      <div class="step-wrapper">
+        <div class="step yellow" id="step-2">
+          <span class="step-num">03</span>
+          <span class="step-icon">&#9989;</span>
+          <div class="step-name">Validation</div>
+          <div class="step-status" id="status-2">Idle</div>
+        </div>
+      </div>
+
+      <div class="arrow" id="arrow-2">
+        <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
+          <path d="M1 8H17M17 8L11 2M17 8L11 14" stroke="#D1D5DB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <!-- Step 4: Kafka Topic -->
+      <div class="step-wrapper">
+        <div class="step purple" id="step-3">
+          <span class="step-num">04</span>
+          <span class="step-icon">&#128296;</span>
+          <div class="step-name">Kafka Topic</div>
+          <div class="step-status" id="status-3">Idle</div>
+        </div>
+      </div>
+
+      <div class="arrow" id="arrow-3">
+        <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
+          <path d="M1 8H17M17 8L11 2M17 8L11 14" stroke="#D1D5DB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <!-- Step 5: Consumer Processing -->
+      <div class="step-wrapper">
+        <div class="step orange" id="step-4">
+          <span class="step-num">05</span>
+          <span class="step-icon">&#9881;&#65039;</span>
+          <div class="step-name">Consumer Processing</div>
+          <div class="step-status" id="status-4">Idle</div>
+        </div>
+      </div>
+
+      <div class="arrow" id="arrow-4">
+        <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
+          <path d="M1 8H17M17 8L11 2M17 8L11 14" stroke="#D1D5DB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <!-- Step 6: AI Model -->
+      <div class="step-wrapper">
+        <div class="step pink" id="step-5">
+          <span class="step-num">06</span>
+          <span class="step-icon">&#129302;</span>
+          <div class="step-name">AI Model</div>
+          <div class="step-status" id="status-5">Idle</div>
+        </div>
+      </div>
+
+      <div class="arrow" id="arrow-5">
+        <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
+          <path d="M1 8H17M17 8L11 2M17 8L11 14" stroke="#D1D5DB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <!-- Step 7: Risk Score Output -->
+      <div class="step-wrapper">
+        <div class="step green" id="step-6">
+          <span class="step-num">07</span>
+          <span class="step-icon">&#128200;</span>
+          <div class="step-name">Risk Score Output</div>
+          <div class="step-status" id="status-6">Idle</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot ld-blue"></div>User action</div>
+      <div class="legend-item"><div class="legend-dot ld-yellow"></div>Validation</div>
+      <div class="legend-item"><div class="legend-dot ld-purple"></div>Kafka</div>
+      <div class="legend-item"><div class="legend-dot ld-orange"></div>Processing</div>
+      <div class="legend-item"><div class="legend-dot ld-pink"></div>AI Model</div>
+      <div class="legend-item"><div class="legend-dot ld-green"></div>Output</div>
+    </div>
+  </div>
+
+  <!-- Two column: Event log + Risk panel -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+
+    <!-- Event Log -->
+    <div class="log-card">
+      <div class="log-title">&#128196; Event Log</div>
+      <div class="log-entries" id="logEntries">
+        <div class="log-entry">
+          <span class="log-time">10:24:01</span>
+          <span class="log-tag blue">SYSTEM</span>
+          <span class="log-msg">Aegis pipeline initialized. Monitoring Zone H3-KOR-4A.</span>
+        </div>
+        <div class="log-entry">
+          <span class="log-time">10:24:15</span>
+          <span class="log-tag yellow">WEATHER</span>
+          <span class="log-msg">IMD API: Rainfall 82mm in 1hr. Threshold 60mm exceeded.</span>
+        </div>
+        <div class="log-entry">
+          <span class="log-time">10:24:16</span>
+          <span class="log-tag purple">KAFKA</span>
+          <span class="log-msg">Zone HALTED event published to zone-state-changes topic.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Risk panel -->
+    <div class="risk-panel">
+
+      <!-- Left: Rider + triggers -->
+      <div class="risk-left">
+        <div class="risk-section-label">Active Rider</div>
+        <div class="rider-card">
+          <div class="rider-avatar">RA</div>
+          <div>
+            <div class="rider-name">Rahul Anand</div>
+            <div class="rider-zone">Zone H3-KOR-4A · Blinkit Partner</div>
+          </div>
+        </div>
+
+        <div class="risk-section-label" style="margin-top:12px;">Trigger Conditions</div>
+        <div class="trigger-row">
+          <span class="trigger-label">&#127783; Rainfall (1hr)</span>
+          <span class="trigger-value alert">82mm &gt; 60mm &#9888;</span>
+        </div>
+        <div class="trigger-row">
+          <span class="trigger-label">&#128248; GPS Active</span>
+          <span class="trigger-value ok">Confirmed &#10003;</span>
+        </div>
+        <div class="trigger-row">
+          <span class="trigger-label">&#128737; Fraud Score</span>
+          <span class="trigger-value ok">0.04 — Clear &#10003;</span>
+        </div>
+        <div class="trigger-row">
+          <span class="trigger-label">&#128179; Idempotency</span>
+          <span class="trigger-value ok">Key Stored &#10003;</span>
+        </div>
+      </div>
+
+      <!-- Right: Risk output -->
+      <div class="risk-right">
+        <div class="risk-section-label">XGBoost Risk Score</div>
+        <div class="risk-badge HIGH" id="riskBadge">
+          &#9888;&#65039; RISK: HIGH
+        </div>
+        <div style="margin-top:4px;">
+          <div style="font-size:11px;color:#6B7280;margin-bottom:4px;">Loss Fraction (Lf)</div>
+          <div class="risk-score-bar">
+            <div class="risk-score-fill" id="riskFill" style="width:0%"></div>
+          </div>
+          <div style="font-size:11px;color:#6B7280;margin-top:4px;display:flex;justify-content:space-between;">
+            <span>0.0</span>
+            <span id="lfScore" style="font-weight:600;color:#111;">—</span>
+            <span>1.0</span>
+          </div>
+        </div>
+
+        <div class="risk-detail-grid" style="margin-top:1rem;">
+          <div class="risk-detail-item">
+            <div class="rdi-label">Weekly Premium</div>
+            <div class="rdi-value" id="premiumVal">&#8377;—</div>
+          </div>
+          <div class="risk-detail-item">
+            <div class="rdi-label">Payout Amount</div>
+            <div class="rdi-value" id="payoutVal" style="color:#3B6D11;">&#8377;—</div>
+          </div>
+          <div class="risk-detail-item">
+            <div class="rdi-label">Model</div>
+            <div class="rdi-value">XGBoost</div>
+          </div>
+          <div class="risk-detail-item">
+            <div class="rdi-label">Latency</div>
+            <div class="rdi-value" id="latencyVal">—ms</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</main>
+
+<!-- ── Floating Collaboration Button ── -->
+<div class="floating-collab">
+  <div class="floating-status" id="floatingStatus">Sharing link copied!</div>
+  <button class="floating-btn" id="floatingBtn" onclick="toggleCollaboration()">
+    &#128640; Start Live Collaboration
+  </button>
+</div>
+
+<script>
+  // ── Simulation config ──
+  const steps = [
+    { id: 'step-0', statusId: 'status-0', color: 'blue',   arrowId: 'arrow-0', label: 'Event triggered',     delay: 600  },
+    { id: 'step-1', statusId: 'status-1', color: 'blue',   arrowId: 'arrow-1', label: 'Creating payload...',  delay: 900  },
+    { id: 'step-2', statusId: 'status-2', color: 'yellow', arrowId: 'arrow-2', label: 'Validating...',        delay: 1000 },
+    { id: 'step-3', statusId: 'status-3', color: 'purple', arrowId: 'arrow-3', label: 'Publishing to topic',  delay: 800  },
+    { id: 'step-4', statusId: 'status-4', color: 'orange', arrowId: 'arrow-4', label: 'Processing claim...',  delay: 1100 },
+    { id: 'step-5', statusId: 'status-5', color: 'pink',   arrowId: 'arrow-5', label: 'Predicting risk...',   delay: 1200 },
+    { id: 'step-6', statusId: 'status-6', color: 'green',  arrowId: null,      label: 'Risk Score: HIGH &#9888;&#65039;', delay: 0 },
+  ];
+
+  const logMessages = [
+    { tag: 'blue',   type: 'DRIVER',    msg: 'Rider Rahul Anand pinged GPS. Zone H3-KOR-4A. Active shift confirmed.' },
+    { tag: 'blue',   type: 'EVENT',     msg: 'ClaimEvent created. EventId: EVT-82741. PayoutIdempotencyKey stored.' },
+    { tag: 'yellow', type: 'VALIDATE',  msg: 'Fraud checks passed. Isolation Forest: 0.04. GBDT: clear. GPS physics: valid.' },
+    { tag: 'purple', type: 'KAFKA',     msg: 'Message published. Partition 3, Offset 18842. DLQ standby ready.' },
+    { tag: 'orange', type: 'CONSUMER',  msg: 'BullMQ consumer processing. Solvency check: Pool at 94%. Approved.' },
+    { tag: 'pink',   type: 'AI MODEL',  msg: 'XGBoost inference. Inputs: rain=82mm, AQI=148, tenure=14mo, demand=0.91.' },
+    { tag: 'green',  type: 'OUTPUT',    msg: 'Loss Fraction Lf=0.87. Risk: HIGH. Premium &#8377;138. Payout &#8377;480 → RazorpayX.' },
+  ];
+
+  let simRunning = false;
+
+  function now() {
+    return new Date().toLocaleTimeString('en-IN', { hour12: false });
+  }
+
+  function addLog(entry) {
+    const log = document.getElementById('logEntries');
+    const el = document.createElement('div');
+    el.className = 'log-entry';
+    el.innerHTML = `<span class="log-time">${now()}</span><span class="log-tag ${entry.tag}">${entry.type}</span><span class="log-msg">${entry.msg}</span>`;
+    log.appendChild(el);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function sleep(ms) {
+    return new Promise(r => setTimeout(r, ms));
+  }
+
+  async function startSimulation() {
+    if (simRunning) return;
+    simRunning = true;
+
+    const btn = document.getElementById('startBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span>&#9632;</span> Running...';
+
+    // Reset all steps
+    steps.forEach(s => {
+      const el = document.getElementById(s.id);
+      el.classList.remove('active', 'done');
+      document.getElementById(s.statusId).innerHTML = 'Waiting...';
+      if (s.arrowId) {
+        document.getElementById(s.arrowId).classList.remove('lit');
+        document.getElementById(s.arrowId).querySelector('path').setAttribute('stroke', '#D1D5DB');
+      }
+    });
+
+    // Reset risk panel
+    document.getElementById('riskBadge').classList.remove('visible');
+    document.getElementById('riskFill').style.width = '0%';
+    document.getElementById('lfScore').textContent = '—';
+    document.getElementById('premiumVal').textContent = '₹—';
+    document.getElementById('payoutVal').textContent = '₹—';
+    document.getElementById('latencyVal').textContent = '—ms';
+    document.getElementById('payoutCount').textContent = '0';
+
+    let totalDelay = 0;
+    for (let i = 0; i < steps.length; i++) {
+      const s = steps[i];
+      totalDelay += (i === 0 ? 400 : steps[i-1].delay);
+
+      await sleep(i === 0 ? 400 : steps[i-1].delay);
+
+      // Mark previous as done
+      if (i > 0) {
+        document.getElementById(steps[i-1].id).classList.remove('active');
+        document.getElementById(steps[i-1].id).classList.add('done');
+        document.getElementById(steps[i-1].statusId).textContent = 'Done ✓';
+      }
+
+      // Activate current
+      const el = document.getElementById(s.id);
+      el.classList.add('active');
+      document.getElementById(s.statusId).innerHTML = s.label;
+
+      // Light up preceding arrow
+      if (i > 0 && steps[i-1].arrowId) {
+        const arrow = document.getElementById(steps[i-1].arrowId);
+        arrow.classList.add('lit');
+        arrow.querySelector('path').setAttribute('stroke', '#185FA5');
+      }
+
+      // Add log entry
+      addLog(logMessages[i]);
+    }
+
+    // Wait for last step delay then finalize
+    await sleep(steps[steps.length-1].delay + 600);
+
+    // Final step done
+    const lastStep = document.getElementById(steps[steps.length-1].id);
+    lastStep.classList.remove('active');
+    lastStep.classList.add('active'); // keep highlighted for output
+    document.getElementById(steps[steps.length-1].statusId).innerHTML = 'Risk Score: HIGH &#9888;&#65039;';
+
+    // Light all arrows
+    if (steps[steps.length-2].arrowId) {
+      const arrow = document.getElementById(steps[steps.length-2].arrowId);
+      arrow.classList.add('lit');
+      arrow.querySelector('path').setAttribute('stroke', '#185FA5');
+    }
+
+    // Animate risk output
+    await sleep(300);
+    document.getElementById('riskBadge').classList.add('visible');
+    document.getElementById('riskFill').style.width = '87%';
+    document.getElementById('lfScore').textContent = '0.87';
+    document.getElementById('premiumVal').textContent = '₹138';
+    document.getElementById('payoutVal').textContent = '₹480';
+    document.getElementById('latencyVal').textContent = '42ms';
+    document.getElementById('payoutCount').textContent = '1';
+
+    addLog({ tag: 'green', type: 'PAYOUT', msg: 'RazorpayX transfer initiated. ₹480 → UPI: rahul@okaxis. WhatsApp notification sent.' });
+
+    btn.disabled = false;
+    btn.innerHTML = '<span>&#9654;</span> Re-run Simulation';
+    simRunning = false;
+  }
+
+  // ── Collaboration (TogetherJS) ──
+  let collabActive = false;
+
+  function toggleCollaboration() {
+    if (typeof TogetherJS === 'undefined') {
+      // TogetherJS not loaded — show informative fallback
+      showCollabStatus('TogetherJS loading...');
+      setTimeout(() => {
+        if (typeof TogetherJS !== 'undefined') {
+          activateCollab();
+        } else {
+          showCollabStatus('CDN unavailable in sandbox — use a hosted server for live collab.');
+        }
+      }, 1500);
+      return;
+    }
+    activateCollab();
+  }
+
+  function activateCollab() {
+    if (!collabActive) {
+      if (typeof TogetherJS !== 'undefined') {
+        TogetherJS(this);
+      }
+      collabActive = true;
+      setCollabUI(true);
+      showCollabStatus('Session link copied to clipboard!');
+      // Copy current URL + togetherjs hash
+      try {
+        navigator.clipboard.writeText(window.location.href + '#togetherjs');
+      } catch(e) {}
+    } else {
+      if (typeof TogetherJS !== 'undefined' && TogetherJS.running) {
+        TogetherJS.running.hub.send({ type: 'close' });
+      }
+      collabActive = false;
+      setCollabUI(false);
+    }
+  }
+
+  function setCollabUI(active) {
+    const pill = document.getElementById('sessionStatus');
+    const text = document.getElementById('sessionText');
+    const fBtn = document.getElementById('floatingBtn');
+
+    if (active) {
+      pill.classList.add('active');
+      text.textContent = 'Live Session: ON';
+      fBtn.classList.add('active');
+      fBtn.innerHTML = '&#128308; End Collaboration';
+    } else {
+      pill.classList.remove('active');
+      text.textContent = 'Live Session: OFF';
+      fBtn.classList.remove('active');
+      fBtn.innerHTML = '&#128640; Start Live Collaboration';
+    }
+  }
+
+  function showCollabStatus(msg) {
+    const el = document.getElementById('floatingStatus');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 3000);
+  }
+
+  // TogetherJS hooks
+  if (typeof TogetherJS !== 'undefined') {
+    TogetherJS.on('ready', () => { collabActive = true; setCollabUI(true); });
+    TogetherJS.on('close', () => { collabActive = false; setCollabUI(false); });
+  }
+</script>
+
+</body>
+</html>
