@@ -1,76 +1,37 @@
 // Register GSAP ScrollTrigger
 gsap.registerPlugin(ScrollTrigger);
 
-// --- HERO CANVAS (Three.js Particles) ---
-function initHeroCanvas() {
-    const canvas = document.getElementById('hero-canvas');
-    if (!canvas) return;
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-    const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 2000;
-    const posArray = new Float32Array(particlesCount * 3);
-
-    for (let i = 0; i < particlesCount * 3; i++) {
-        posArray[i] = (Math.random() - 0.5) * 12;
-    }
-
-    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-    const material = new THREE.PointsMaterial({
-        size: 0.02,
-        color: 0x00ff88,
-        transparent: true,
-        opacity: 0.6,
-        blending: THREE.AdditiveBlending
-    });
-
-    const particlesMesh = new THREE.Points(particlesGeometry, material);
-    scene.add(particlesMesh);
-    camera.position.z = 4;
-
-    function animate() {
-        requestAnimationFrame(animate);
-        particlesMesh.rotation.y += 0.0008;
-        particlesMesh.rotation.x += 0.0004;
-        renderer.render(scene, camera);
-    }
-    animate();
-
-    window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-}
-initHeroCanvas();
-
-// --- GLOBAL GSAP ANIMATIONS ---
-// Hero text animations
-gsap.from('.hero-eyebrow', { opacity: 0, y: 20, duration: 1, delay: 0.2 });
-gsap.from('.hero-headline .line', { opacity: 0, y: 50, duration: 1, stagger: 0.2, delay: 0.4, ease: "power3.out" });
-gsap.from('.hero-sub', { opacity: 0, duration: 1, delay: 1 });
-gsap.from('.hero-stats', { opacity: 0, y: 30, duration: 1, delay: 1.2 });
-
-// Stats counting
-document.querySelectorAll('.stat-num').forEach(el => {
-    const target = parseFloat(el.getAttribute('data-target'));
-    const isDecimal = target % 1 !== 0;
-    gsap.to(el, {
-        innerHTML: target,
-        duration: 2,
-        delay: 1.5,
-        snap: { innerHTML: isDecimal ? 0.01 : 1 },
-        onUpdate: function () {
-            if (isDecimal) el.innerHTML = Number(el.innerHTML).toFixed(2);
+// --- REVEAL OBSERVER (Matching logic.html) ---
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+            if (entry.target.id === 'hero-quote') runHeroTyping();
         }
     });
-});
+}, { threshold: 0.1 });
 
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// --- HERO TYPING QUOTE (Matching logic.html style) ---
+function runHeroTyping() {
+    const quote = "Fraud doesn't sleep. But our sensors never stop watching.";
+    const heroH1 = document.getElementById('hero-quote');
+    if (!heroH1 || heroH1.children.length > 0) return; // Prevent double trigger
+
+    quote.split('').forEach((char, i) => {
+        const span = document.createElement('span');
+        span.textContent = char;
+        span.style.opacity = '0';
+        span.style.display = 'inline-block';
+        if (char === ' ') span.style.width = '0.3em';
+        span.style.transition = `opacity 0.1s ease ${i * 0.03}s`;
+        heroH1.appendChild(span);
+        setTimeout(() => span.style.opacity = '1', 100);
+    });
+}
+
+// --- GLOBAL GSAP ANIMATIONS ---
 // Sections fade in
 gsap.utils.toArray('.phase-header').forEach(header => {
     gsap.from(header, {

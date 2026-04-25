@@ -22,45 +22,24 @@
 
     <!-- ===================== HERO ===================== -->
     <section class="hero" id="hero">
-        <canvas id="hero-canvas"></canvas>
         <div class="hero-content">
-            <div class="hero-eyebrow">
-                <span class="eyebrow-dot"></span>
-                <span>SMART FRAUD PROTECTION</span>
-            </div>
-            <h1 class="hero-headline">
-                <span class="line line-1">Automatic Claims.</span>
-                <span class="line line-2">No More Fraud.</span>
-            </h1>
-            <p class="hero-sub">Our 8-Step Security Check</p>
-            <div class="hero-stats">
-                <div class="stat">
-                    <span class="stat-num" data-target="99.97">0</span><span class="stat-unit">%</span>
-                    <span class="stat-label">Detection Rate</span>
-                </div>
-                <div class="stat-divider"></div>
-                <div class="stat">
-                    <span class="stat-num" data-target="8">0</span><span class="stat-unit">x</span>
-                    <span class="stat-label">Defense Layers</span>
-                </div>
-            </div>
+            <h1 id="hero-quote" class="reveal" style="font-family: var(--font-serif); font-size: clamp(2rem, 7vw, 7rem); line-height: 1.1; font-weight: 400; letter-spacing: -0.04em;"></h1>
             <div class="scroll-cue">
                 <div class="scroll-line"></div>
-                <span>SCROLL TO DEPLOY</span>
+                <span>SCROLL TO DEPLOY DEFENSE</span>
             </div>
         </div>
-        <div class="hero-grid-lines"></div>
     </section>
 
     <!-- ===================== PHASE 1: PHYSICAL REALITY ===================== -->
-    <section class="phase-header" id="phase1-header">
+    <section class="phase-header reveal" id="phase1-header">
         <div class="phase-label">PHASE 01 / 03</div>
         <h2 class="phase-title">Physical<br />Reality</h2>
         <p class="phase-desc">Checking phone movements and local weather conditions</p>
     </section>
 
     <!-- LAYER 1: KINEMATIC CONSISTENCY -->
-    <section class="layer-section" id="layer1">
+    <section class="layer-section reveal" id="layer1">
         <div class="layer-number">L-01</div>
         <div class="layer-layout">
             <div class="layer-visual-wrap">
@@ -88,7 +67,7 @@
     </section>
 
     <!-- LAYER 2: ATMOS SENTINEL -->
-    <section class="layer-section" id="layer2">
+    <section class="layer-section reveal" id="layer2">
         <div class="layer-number">L-02</div>
         <div class="layer-layout reverse">
             <div class="layer-visual-wrap">
@@ -179,7 +158,7 @@
     </section>
 
     <!-- LAYER 4: H3 GEOSPATIAL BURST -->
-    <section class="layer-section" id="layer4">
+    <section class="layer-section reveal" id="layer4">
         <div class="layer-number">L-04</div>
         <div class="layer-layout reverse">
             <div class="layer-visual-wrap">
@@ -202,7 +181,7 @@
     </section>
 
     <!-- LAYER 5: GEOMETRIC VELOCITY -->
-    <section class="layer-section" id="layer5">
+    <section class="layer-section reveal" id="layer5">
         <div class="layer-number">L-05</div>
         <div class="layer-layout">
             <div class="layer-visual-wrap">
@@ -230,7 +209,7 @@
     </section>
 
     <!-- LAYER 6: HARDWARE HEURISTICS -->
-    <section class="layer-section" id="layer6">
+    <section class="layer-section reveal" id="layer6">
         <div class="layer-number">L-06</div>
         <div class="layer-layout reverse">
             <div class="layer-visual-wrap">
@@ -268,7 +247,7 @@
     </section>
 
     <!-- LAYER 7: IDENTITY FINGERPRINT -->
-    <section class="layer-section" id="layer7">
+    <section class="layer-section reveal" id="layer7">
         <div class="layer-number">L-07</div>
         <div class="layer-layout">
             <div class="layer-visual-wrap">
@@ -297,7 +276,7 @@
     </section>
 
     <!-- LAYER 8: ML FUSION CORE -->
-    <section class="layer-section verdict-section" id="layer8">
+    <section class="layer-section verdict-section reveal" id="layer8">
         <div class="layer-number">L-08</div>
         <canvas id="ml-canvas"></canvas>
         <div class="ml-overlay">
@@ -404,6 +383,17 @@
                     <span class="rc-phase">Verdict</span>
                 </div>
             </div>
+        </div>
+    <!-- CHAPTER NAVIGATION -->
+    <section class="recap-section reveal" style="border-top: none; padding-top: 0;">
+        <div class="recap-inner">
+            <div style="margin-bottom: 2rem; font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; opacity: 0.5; text-transform: uppercase; letter-spacing: 2px;">Next Chapter</div>
+            <a href="../logic.html" style="text-decoration: none; display: block;">
+                <div class="recap-card verdict-card" style="padding: 4rem; background: #000; border: none; transition: transform 0.4s var(--easing);">
+                    <span class="rc-num" style="color: var(--accent);">Chapter 01</span>
+                    <span class="rc-name" style="font-size: 2.5rem; font-family: var(--font-serif); text-transform: none; font-style: italic; margin-top: 1rem; display: block;">Technical Narrative →</span>
+                </div>
+            </a>
         </div>
     </section>
 
