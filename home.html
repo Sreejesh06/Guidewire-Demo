@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aegis — Beyond the Slides</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #fdfcfb;
+            --text: #121212;
+            --gray: #e0ddd5;
+            --font-mono: 'IBM Plex Mono', monospace;
+            --font-serif: 'Playfair Display', serif;
+            --easing: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: var(--font-mono);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(to right, var(--gray) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--gray) 1px, transparent 1px);
+            background-size: 100px 100px;
+            pointer-events: none;
+            opacity: 0.15;
+            z-index: 1;
+        }
+
+        main {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            max-width: 1000px;
+            width: 100%;
+            padding: 2rem;
+        }
+
+        .label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: rgba(18,18,18,0.4);
+            margin-bottom: 3rem;
+            display: block;
+        }
+
+        h1 {
+            font-family: var(--font-serif);
+            font-size: clamp(4rem, 12vw, 9rem);
+            line-height: 0.8;
+            margin-bottom: 4rem;
+            font-weight: 400;
+            letter-spacing: -0.04em;
+        }
+
+        h1 span { font-style: italic; color: #000; }
+
+        .manifesto {
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            max-width: 550px;
+            margin: 0 auto 5rem;
+            color: #444;
+        }
+
+        .manifesto strong { color: #000; font-weight: 600; }
+
+        .actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            padding: 1.5rem 3.5rem;
+            border: 1px solid var(--text);
+            background: transparent;
+            transition: all 0.4s var(--easing);
+        }
+
+        .btn:hover {
+            background: var(--text);
+            color: #fff;
+            transform: translateY(-5px);
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 3rem;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 0.6rem;
+            letter-spacing: 0.2em;
+            color: rgba(18,18,18,0.3);
+            text-transform: uppercase;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="grid-overlay"></div>
+
+    <main>
+        <img src="logo.png" alt="Aegis Logo" style="width: 60px; height: 60px; filter: invert(1); margin-bottom: 2rem;">
+        <span class="label">Aegis Parametric // Hub</span>
+        <h1>Breathing <span>Narrative.</span></h1>
+        <p class="manifesto">
+            We chose this experience <strong>over a standard PowerPoint</strong> to make the technical logic fully visualized and perfectly animated.
+        </p>
+        
+        <div class="actions">
+            <a href="logic.html" class="btn">Visual Logic</a>
+            <a href="actuary.html" class="btn">Actuarial Intelligence</a>
+            <a href="arch.html" class="btn">System Architecture</a>
+            <a href="index.html" class="btn">System Demo</a>
+        </div>
+    </main>
+
+    <div class="footer">
+        Real-time Parametric Insurance Logic · 2026
+    </div>
+
+    <script>
+        // Subtle entrance
+        document.addEventListener('DOMContentLoaded', () => {
+            const h1 = document.querySelector('h1');
+            const main = document.querySelector('main');
+            
+            h1.style.opacity = '0';
+            h1.style.transform = 'scale(0.95) translateY(20px)';
+            
+            setTimeout(() => {
+                h1.style.transition = 'all 1.2s var(--easing)';
+                h1.style.opacity = '1';
+                h1.style.transform = 'scale(1) translateY(0)';
+            }, 300);
+        });
+    </script>
+</body>
+</html>

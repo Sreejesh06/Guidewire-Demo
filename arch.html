@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aegis — Infrastructure Narrative</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #fdfcfb;
+            --text: #121212;
+            --accent: #00ff88;
+            --gray: #e0ddd5;
+            --font-mono: 'IBM Plex Mono', monospace;
+            --font-serif: 'Playfair Display', serif;
+            --easing: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: var(--font-mono);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(to right, var(--gray) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--gray) 1px, transparent 1px);
+            background-size: 100px 100px;
+            pointer-events: none;
+            opacity: 0.15;
+            z-index: 100;
+        }
+
+        section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 5vh 10vw;
+            position: relative;
+            border-bottom: 1px solid var(--gray);
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 1s var(--easing);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        h2 {
+            font-family: var(--font-serif);
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            line-height: 1.1;
+            margin-bottom: 4rem;
+            text-align: center;
+        }
+
+        .diagram-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* ── Visual 1: The Full Stack Chain ── */
+        .stack-chain {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            position: relative;
+            padding: 4rem 0;
+        }
+
+        .stack-node {
+            border: 2px solid var(--text);
+            padding: 1.5rem;
+            background: #fff;
+            width: 200px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .stack-node label { font-size: 0.6rem; font-weight: 600; text-transform: uppercase; color: #888; display: block; margin-bottom: 8px; }
+        .stack-node span { font-weight: 600; font-size: 1rem; }
+
+        .chain-line {
+            position: absolute;
+            height: 2px;
+            background: var(--text);
+            top: 50%;
+            left: 0;
+            width: 100%;
+            z-index: 1;
+        }
+
+        /* ── Visual 2: The Data Backbone (Kafka + DBs) ── */
+        .backbone-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .kafka-node {
+            height: 300px;
+            border: 3px solid var(--text);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            padding: 1rem;
+            background: #fff;
+        }
+
+        .kafka-topic { height: 40px; border: 1px dashed #000; position: relative; overflow: hidden; }
+        .event-pips { 
+            position: absolute; height: 100%; width: 20px; background: var(--text); 
+            animation: moveRight 1.5s infinite linear;
+        }
+        @keyframes moveRight { from { left: -20px; } to { left: 100%; } }
+
+        .storage-triad {
+            display: grid;
+            grid-template-rows: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .db-node {
+            border: 1px solid var(--text);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+        }
+
+        .db-node b { font-size: 0.8rem; }
+        .db-node span { font-size: 0.6rem; opacity: 0.6; }
+
+        /* ── Visual 3: H3 Scaling ── */
+        .h3-grid {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            width: 300px;
+            margin: 0 auto;
+        }
+        .hex {
+            width: 40px; height: 46px;
+            background: var(--gray);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            transition: background 0.3s;
+        }
+        .hex.active { background: var(--accent); }
+
+
+
+        /* ── Navigation ── */
+        .nav-back {
+            position: fixed; top: 1.5rem; left: 2rem; z-index: 200;
+            display: flex; align-items: center; gap: 1rem;
+        }
+        .nav-btn {
+            color: var(--text); text-decoration: none; font-size: 0.7rem; font-weight: 600;
+            border: 1px solid var(--text); padding: 0.6rem 1.2rem;
+            background: #fff; letter-spacing: 0.1em;
+            transition: all 0.3s var(--easing);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .nav-btn:hover { background: var(--text); color: var(--accent); }
+        .nav-logo {
+            width: 32px; height: 32px; filter: invert(1);
+        }
+
+        .caption { 
+            margin-top: 2rem; font-size: 0.8rem; font-weight: 600; 
+            max-width: 400px; margin-left: auto; margin-right: auto;
+            color: rgba(18,18,18,0.6);
+        }
+
+        /* ── Autonomous Brain Slide Components ── */
+        .kpi-strip {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+            padding: 1rem;
+            border-top: 1px solid var(--gray);
+            border-bottom: 1px solid var(--gray);
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            color: var(--text);
+        }
+        .trust-chips {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        .chip {
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 0.4rem 0.8rem;
+            border: 1px solid var(--gray);
+            border-radius: 100px;
+            color: #666;
+            background: #fff;
+        }
+        .badge {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.6rem;
+            font-weight: 700;
+            margin-top: 1.5rem;
+            border-left: 3px solid var(--text);
+        }
+        .legend {
+            font-size: 0.5rem;
+            color: #999;
+            margin-top: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .process-box {
+            width: 180px; 
+            padding: 1.5rem 1rem; 
+            border: 2px solid var(--text); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            background: #fff;
+            transition: all 0.3s var(--easing);
+            position: relative;
+        }
+        .process-box:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .process-box .step-label { font-size: 0.6rem; color: #888; font-weight: 700; margin-bottom: 4px; }
+        .process-box .step-time { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
+        .process-box .step-desc { font-size: 0.65rem; color: #444; line-height: 1.3; text-align: center; }
+        .process-box.active { background: var(--accent); border-color: var(--accent); }
+        .process-box.active .step-desc { color: var(--text); font-weight: 600; }
+        
+        .callout {
+            position: absolute;
+            top: -40px;
+            right: -20px;
+            background: var(--text);
+            color: var(--accent);
+            padding: 4px 8px;
+            font-size: 0.55rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        /* ── System Flow Components ── */
+        .flow-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 2rem 0;
+            position: relative;
+        }
+        .flow-node {
+            border: 2px solid var(--text);
+            padding: 1rem;
+            background: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-align: center;
+            min-width: 110px;
+            position: relative;
+            z-index: 2;
+        }
+        .flow-node.highlight {
+            background: var(--accent);
+            border-color: var(--text);
+        }
+        .flow-connector {
+            flex-grow: 1;
+            height: 2px;
+            background: var(--text);
+            position: relative;
+        }
+        .flow-connector::after {
+            content: '→';
+            position: absolute;
+            right: -5px;
+            top: -9px;
+            font-size: 1rem;
+            font-weight: 900;
+        }
+        .worker-expanded {
+            margin-top: 3rem;
+            border: 1px solid var(--gray);
+            padding: 2rem;
+            background: #fafafa;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+            text-align: left;
+        }
+        .worker-title {
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            color: var(--text);
+            border-left: 4px solid var(--accent);
+            padding-left: 1rem;
+        }
+        .worker-list {
+            list-style: none;
+            font-size: 0.7rem;
+            line-height: 1.8;
+            color: #444;
+        }
+        .worker-list li::before {
+            content: '▹';
+            margin-right: 8px;
+            color: var(--accent);
+            font-weight: 900;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="grid-overlay"></div>
+    <div class="nav-back">
+        <img src="logo.png" alt="Aegis Logo" class="nav-logo">
+        <a href="index.html" class="nav-btn">← HUB</a>
+        <a href="actuary.html" class="nav-btn" style="background: var(--text); color: var(--accent);">ACTUARIAL INTELLIGENCE</a>
+    </div>
+
+    <!-- Panel 0: The Hook -->
+    <section>
+        <h2 class="reveal" style="max-width: 900px; font-weight: 400;">
+            Infrastructure is the <br> <span>true guarantor</span> of resilience.
+        </h2>
+        <div class="reveal" style="font-size: 0.7rem; color: #888; margin-top: 2rem; letter-spacing: 0.2em;">SYSTEM ARCHITECTURE // DOMAIN</div>
+    </section>
+
+    <!-- Panel 1: Async System Flow -->
+    <section>
+        <div class="reveal diagram-container" style="max-width: 1100px;">
+            <h2>ASYNC SYSTEM FLOW</h2>
+            
+            <div class="flow-container">
+                <div class="flow-node">React Native App</div>
+                <div class="flow-connector"></div>
+                <div class="flow-node">API Gateway</div>
+                <div class="flow-connector"></div>
+                <div class="flow-node">NestJS API</div>
+                <div class="flow-connector"></div>
+                <div class="flow-node highlight">Kafka (MSK)</div>
+                <div class="flow-connector"></div>
+                <div class="flow-node">Workers</div>
+                <div class="flow-connector"></div>
+                <div class="flow-node">DB / Cache</div>
+                <div class="flow-connector"></div>
+                <div class="flow-node">Event Updates</div>
+            </div>
+
+            <div class="worker-expanded">
+                <div>
+                    <div class="worker-title">WORKER NODE<br>LOGIC (CONSUMER)</div>
+                    <div style="font-size: 0.6rem; color: #888; margin-top: 1rem; line-height: 1.4;">
+                        Horizontal scale-out group<br>processing MSK partitions.
+                    </div>
+                </div>
+                <ul class="worker-list">
+                    <li>Read messages from Kafka topics</li>
+                    <li>Run business logic (validation, scoring, routing, rule checks)</li>
+                    <li>Call other services/APIs</li>
+                    <li>Save results to DB/cache</li>
+                    <li>Emit next events (success/failure/update)</li>
+                </ul>
+            </div>
+
+            <p class="caption" style="margin-top: 3rem; max-width: 600px; color: var(--text);">
+                <b>API stays fast</b> while workers process asynchronously and scale independently.
+            </p>
+        </div>
+    </section>
+
+    <!-- Panel 2: The Kafka Backbone -->
+    <section>
+        <div class="reveal diagram-container">
+            <h2>THE DATA BACKBONE</h2>
+            <div class="backbone-grid">
+                <div class="kafka-node">
+                    <div style="font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em;">APACHE KAFKA: ZERO LOSS</div>
+                    <div class="kafka-topic"><div class="event-pips"></div></div>
+                    <div class="kafka-topic"><div class="event-pips" style="animation-delay: -0.5s;"></div></div>
+                    <div class="kafka-topic"><div class="event-pips" style="animation-delay: -1s;"></div></div>
+                    <div style="font-size: 0.6rem; color: #888;">If DB reboots, Kafka queues every ping.</div>
+                </div>
+                <div class="storage-triad">
+                    <div class="db-node"><b>POSTGRESQL</b><span>TRUTH / LEDGER</span></div>
+                    <div class="db-node"><b>TIMESCALEDB</b><span>HISTORY / GPS</span></div>
+                    <div class="db-node"><b>REDIS</b><span>SPEED / CACHE</span></div>
+                </div>
+            </div>
+            <p class="caption">Every claim flows through Kafka. If a flood takes down our DB, Kafka replays every event perfectly.</p>
+        </div>
+    </section>
+
+    <!-- Panel 3: H3 Scaling -->
+    <section>
+        <div class="reveal diagram-container">
+            <h2>SCALING: H3 O(1)</h2>
+            <div class="h3-grid" id="h3Grid"></div>
+            <div style="margin-top: 3rem; font-size: 3rem; font-weight: 700; font-family: var(--font-serif); font-style: italic;">POS &rarr; INDEX</div>
+            <p class="caption">We don't query a database to find a rider's location. We use math. 5,000 pings take exactly the same time as one.</p>
+        </div>
+    </section>
+
+
+
+
+
+    <!-- Panel 5: Autonomous Brain -->
+    <section>
+        <div class="reveal diagram-container" style="max-width: 1000px;">
+            <h2>AUTONOMOUS BRAIN</h2>
+            <p style="text-align: center; font-size: 1.1rem; color: #666; margin-top: -3rem; margin-bottom: 4rem;">
+                Claims run end-to-end with policy-aware automation and real-time control.
+            </p>
+
+            <div style="display: flex; gap: 1.5rem; justify-content: center; position: relative;">
+                <div class="process-box">
+                    <div class="step-label">INGEST</div>
+                    <div class="step-time">10m</div>
+                    <div class="step-desc">Collect claim + docs</div>
+                </div>
+                <div class="process-box">
+                    <div class="step-label">CLASSIFY</div>
+                    <div class="step-time">5m</div>
+                    <div class="step-desc">Detect type, priority, risk</div>
+                </div>
+                <div class="process-box">
+                    <div class="step-label">DECIDE</div>
+                    <div class="step-time">1m</div>
+                    <div class="step-desc">Apply rules + confidence checks</div>
+                </div>
+                <div class="process-box active">
+                    <div class="callout">PRODUCTION-ACTIVE ORCHESTRATION</div>
+                    <div class="step-label">GO LIVE</div>
+                    <div class="step-time">LIVE</div>
+                    <div class="step-desc">Trigger actions + notify systems</div>
+                </div>
+            </div>
+
+            <div class="kpi-strip">
+                <span>94% AUTO-RESOLVED</span>
+                <span>&lt;16 MIN AVG TAT</span>
+                <span>24/7 UPTIME</span>
+                <span>&lt;2% ESCALATION</span>
+            </div>
+
+            <div style="text-align: center;">
+
+                
+                <div class="trust-chips">
+                    <span class="chip">Audit Trail</span>
+                    <span class="chip">Policy Guardrails</span>
+                    <span class="chip">PII Safe</span>
+                    <span class="chip">Fallback Ready</span>
+                </div>
+
+                <div class="legend">Gray = staged path // Green = live path</div>
+            </div>
+
+
+        </div>
+    </section>
+
+    <!-- Panel 6: Final -->
+    <section>
+        <div class="reveal">
+            <h2 style="font-size: clamp(2rem, 4vw, 4rem); max-width: 800px; margin: 0 auto 4rem;">
+                Aegis is production-grade. Built for the storm.
+            </h2>
+            <div style="display: flex; gap: 2rem; justify-content: center; opacity: 0.4; font-weight: 600; font-size: 0.8rem;">
+                <span>KAFKA</span> <span>TIMESCALEDB</span> <span>H3</span> <span>DOCKER</span>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.2 });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // Build Hex Grid
+        const grid = document.getElementById('h3Grid');
+        for(let i=0; i<36; i++) {
+            const hex = document.createElement('div');
+            hex.className = 'hex';
+            if (i === 14 || i === 15 || i === 20) hex.classList.add('active');
+            grid.appendChild(hex);
+        }
+
+        // ── LIVE SIMULATIONS ──
+
+
+
+        // 2. Kafka to DB Fan-out
+        function fanOutEvent() {
+            const triad = document.querySelector('.storage-triad');
+            const nodes = document.querySelectorAll('.db-node');
+            const target = nodes[Math.floor(Math.random() * nodes.length)];
+            
+            target.style.background = 'var(--accent)';
+            target.style.transition = 'background 0.1s';
+            setTimeout(() => {
+                target.style.background = '#fff';
+                target.style.transition = 'background 1s';
+            }, 100);
+        }
+        setInterval(fanOutEvent, 800);
+
+
+
+    </script>
+</body>
+</html>

@@ -335,7 +335,7 @@
 </head>
 <body>
     <div class="grid-overlay"></div>
-    <a href="index.html" class="nav-back">← EXIT NARRATIVE</a>
+    <a href="home.html" class="nav-back">← EXIT TO HUB</a>
 
     <!-- Panel 0: Opening -->
     <section id="panel0">
@@ -646,6 +646,38 @@
                 document.getElementById('finalTags').classList.add('active');
             }, words.length * 100 + 500);
         }
+
+        // ── LIVE BACKGROUND SIMULATIONS ──
+
+        // 1. Terminal Data Pulse (Periodic activity after reveal)
+        setInterval(() => {
+            const term = document.getElementById('terminal');
+            if (!term || term.children.length < 5) return;
+            const pulse = document.createElement('div');
+            pulse.className = 'term-line';
+            pulse.innerHTML = `[${new Date().toLocaleTimeString()}] REPLAY_IDEMPOTENCY_CHECK: PASS`;
+            pulse.style.opacity = '0.5';
+            term.insertBefore(pulse, term.lastChild);
+            if (term.children.length > 10) term.children[0].remove();
+        }, 4000);
+
+        // 2. Countdown Pulse
+        setInterval(() => {
+            const ring = document.querySelector('.clock-ring');
+            if (!ring) return;
+            ring.style.transform = 'scale(1.02)';
+            setTimeout(() => ring.style.transform = 'scale(1)', 300);
+        }, 5000);
+
+        // 3. Fraud Checklist Reveal Simulation
+        setInterval(() => {
+            const items = document.querySelectorAll('.check-item');
+            if (items.length === 0) return;
+            const random = items[Math.floor(Math.random() * items.length)];
+            random.style.color = 'var(--accent)';
+            setTimeout(() => random.style.color = 'inherit', 500);
+        }, 2000);
+
     </script>
 </body>
 </html>
