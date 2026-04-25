@@ -6,48 +6,55 @@
 <title>Aegis — Live System Demo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script>
-  // TogetherJS Configuration: Must be defined BEFORE loading the script
-  // Documentation: https://togetherjs.com/docs/
-
-  // CRITICAL: Basic Configuration
-  var TogetherJSConfig_siteName = "Aegis Platform";
-  var TogetherJSConfig_toolName = "Aegis Collaboration";
+<!-- PeerJS for reliable P2P collaboration -->
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<style>
+  /* Remote Cursor Styles */
+  .remote-cursor {
+    position: absolute;
+    pointer-events: none;
+    z-index: 10000;
+    transition: transform 0.1s linear;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .cursor-dot {
+    width: 12px;
+    height: 12px;
+    background: var(--blue-600);
+    border: 2px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  .cursor-label {
+    background: rgba(0,0,0,0.75);
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-weight: 600;
+  }
   
-  // CRITICAL: Hub Base - Using the most stable hub endpoint
-  var TogetherJSConfig_hubBase = "https://hub.togetherjs.com";
-  
-  // CRITICAL: Interaction Sync
-  var TogetherJSConfig_dontShowClicks = false; // Show click indicators (visual dots)
-  var TogetherJSConfig_cloneForms = true;      // Sync form inputs
-  
-  // CRITICAL: Session Management
-  var TogetherJSConfig_includeHashInUrl = true; // Use URL hash for session ID (required for sharing links)
-  var TogetherJSConfig_suppressInvite = false;   // Allow invitations
-  var TogetherJSConfig_suppressJoinConfirmation = false;
-  
-  // User Identification
-  var TogetherJSConfig_getUserName = function() {
-    return "User-" + Math.floor(Math.random() * 1000);
-  };
-  
-  // Event Hooks
-  var TogetherJSConfig_on = {
-    ready: function() { 
-      console.log('🚀 TogetherJS Ready');
-      if (typeof onTogetherJSReady === 'function') onTogetherJSReady(); 
-    },
-    close: function() { 
-      console.log('🛑 TogetherJS Closed');
-      if (typeof onTogetherJSClose === 'function') onTogetherJSClose(); 
-    }
-  };
-
-  // Optimization
-  var TogetherJSConfig_useMinimizedCode = true;
-</script>
-<!-- Using a reliable CDN for TogetherJS -->
-<script src="https://togetherjs.com/togetherjs-min.js"></script>
+  /* Click Ripple */
+  .click-ripple {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--blue-600);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    animation: ripple 0.6s ease-out forwards;
+    z-index: 9999;
+  }
+  @keyframes ripple {
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+  }
+</style>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1020,101 +1027,237 @@
     simRunning = false;
   }
 
-  // ── Collaboration (TogetherJS) ──
+  // ── Collaboration (PeerJS Replacement) ──
+  let peer = null;
+  let connections = [];
+  let myId = null;
+  let remoteCursors = {};
   let collabActive = false;
 
   function toggleCollaboration() {
-    if (typeof TogetherJS === 'undefined') {
-      alert('TogetherJS library failed to load. Please check your internet connection.');
-      return;
+    if (collabActive) {
+      stopCollaboration();
+    } else {
+      startCollaboration();
     }
-    // TogetherJS() toggles the session
-    TogetherJS();
   }
 
-  // Called when TogetherJS session starts
-  function onTogetherJSReady() {
-    collabActive = true;
-    setCollabUI(true);
+  function startCollaboration() {
+    if (peer) return;
+
+    // Use hash as room ID or generate one
+    let roomId = window.location.hash.substring(1);
+    const isJoining = !!roomId;
     
-    console.log('🚀 TogetherJS session established');
-    
-    // 1. Initial participant count
-    updateParticipantCount();
-    
-    // 2. Listen for custom simulation events
-    // TogetherJS.hub.on handles custom messages between clients
-    TogetherJS.hub.on("simulation-start", function(msg) {
-      // Ignore if it's from ourselves (TogetherJS usually filters this, but good to be safe)
-      if (msg.hello) return; 
-      
-      console.log('📨 Received simulation-start from peer:', msg.clientId);
-      
-      if (!simRunning) {
-        showCollabStatus('🎬 Teammate started simulation');
-        startSimulation();
+    if (!roomId) {
+      roomId = Math.random().toString(36).substring(2, 9);
+      window.location.hash = roomId;
+    }
+
+    // Predictable host ID, random guest ID
+    const peerId = isJoining 
+      ? `aegis-${roomId}-guest-${Math.random().toString(36).substring(2, 5)}`
+      : `aegis-${roomId}-host`;
+
+    peer = new Peer(peerId, {
+      debug: 1,
+      config: {
+        'iceServers': [
+          { url: 'stun:stun.l.google.com:19302' },
+          { url: 'stun:stun1.l.google.com:19302' }
+        ]
       }
     });
 
-    // 3. Listen for peer events to update UI
-    // 'togetherjs.hello' fires when a new person joins
-    TogetherJS.hub.on("togetherjs.hello", function(msg) {
-      console.log('👋 Peer joined:', msg.name || 'Anonymous');
-      showCollabStatus(`👋 ${msg.name || 'Someone'} joined`);
-      updateParticipantCount();
+    peer.on('open', (id) => {
+      myId = id;
+      collabActive = true;
+      setCollabUI(true);
+      console.log('🚀 PeerJS connection opened:', id);
+      
+      if (isJoining) {
+        console.log('🔗 Attempting to connect to host...');
+        const conn = peer.connect(`aegis-${roomId}-host`);
+        setupConnection(conn);
+      } else {
+        showCollabStatus('✓ Collaboration host active! Share the URL.');
+      }
     });
 
-    // 'togetherjs.bye' fires when someone leaves
-    TogetherJS.hub.on("togetherjs.bye", function(msg) {
-      console.log('👋 Peer left');
-      showCollabStatus(`👋 A peer left`);
-      updateParticipantCount();
+    peer.on('connection', (conn) => {
+      setupConnection(conn);
+      // Bi-directional connection for guests
+      if (id.includes('-host')) {
+        // Host broadcasts new peer to others? No, simple star topology is fine.
+      }
     });
 
-    // 4. Custom Scroll Sync for Pipeline Flow
-    const flowContainer = document.getElementById('pipelineFlow');
-    if (flowContainer) {
-      // Broadcast scroll position
-      flowContainer.addEventListener('scroll', function() {
-        if (collabActive && TogetherJS.running) {
-          TogetherJS.send({
-            type: "pipeline-scroll",
-            scrollLeft: flowContainer.scrollLeft
-          });
-        }
-      }, { passive: true });
+    peer.on('error', (err) => {
+      console.error('PeerJS error:', err.type);
+      if (err.type === 'unavailable-id') {
+        // If host ID taken, become a guest
+        window.location.hash = roomId;
+        startCollaboration();
+      } else {
+        showCollabStatus('❌ Connection error: ' + err.type);
+      }
+    });
 
-      // Receive scroll position
-      TogetherJS.hub.on("pipeline-scroll", function(msg) {
-        if (msg.hello) return;
-        if (flowContainer) {
-          flowContainer.scrollLeft = msg.scrollLeft;
+    // Share logic: Copy link to clipboard
+    const shareUrl = window.location.href;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      showCollabStatus('🔗 Sharing link copied!');
+    });
+
+    setupTracking();
+  }
+
+  function stopCollaboration() {
+    if (peer) peer.destroy();
+    peer = null;
+    connections = [];
+    collabActive = false;
+    setCollabUI(false);
+    
+    // Remove remote cursors
+    Object.values(remoteCursors).forEach(c => c.remove());
+    remoteCursors = {};
+    
+    window.location.hash = '';
+    console.log('🛑 Collaboration stopped');
+  }
+
+  function setupConnection(conn) {
+    conn.on('open', () => {
+      connections.push(conn);
+      console.log('👋 Peer connected:', conn.peer);
+      showCollabStatus('👋 User joined');
+      updateParticipantCount();
+      
+      // Send current state
+      conn.send({ type: 'sync-state', simRunning: simRunning });
+    });
+
+    conn.on('data', (data) => {
+      handlePeerData(data, conn.peer);
+    });
+
+    conn.on('close', () => {
+      console.log('👋 Peer disconnected');
+      removeCursor(conn.peer);
+      connections = connections.filter(c => c !== conn);
+      updateParticipantCount();
+    });
+  }
+
+  function handlePeerData(data, peerId) {
+    switch (data.type) {
+      case 'cursor':
+        updateRemoteCursor(peerId, data.x, data.y, data.name);
+        break;
+      case 'scroll':
+        window.scrollTo({ top: data.y, behavior: 'auto' });
+        break;
+      case 'pipeline-scroll':
+        const flow = document.getElementById('pipelineFlow');
+        if (flow) flow.scrollLeft = data.scrollLeft;
+        break;
+      case 'simulation-start':
+        if (!simRunning) {
+          showCollabStatus('🎬 Teammate started simulation');
+          startSimulation();
         }
-      });
+        break;
+      case 'click':
+        showClickRipple(data.x, data.y);
+        break;
     }
   }
 
-  // Called when TogetherJS session ends
-  function onTogetherJSClose() {
-    collabActive = false;
-    setCollabUI(false);
-    showCollabStatus('Collaboration ended.');
-    console.log('🛑 TogetherJS session closed');
+  function setupTracking() {
+    // Track Mouse
+    document.addEventListener('mousemove', (e) => {
+      if (!collabActive) return;
+      broadcast({
+        type: 'cursor',
+        x: e.pageX,
+        y: e.pageY,
+        name: 'User'
+      });
+    });
+
+    // Track Click
+    document.addEventListener('mousedown', (e) => {
+      if (!collabActive) return;
+      broadcast({
+        type: 'click',
+        x: e.pageX,
+        y: e.pageY
+      });
+    });
+
+    // Track Scroll
+    window.addEventListener('scroll', () => {
+      if (!collabActive) return;
+      broadcast({
+        type: 'scroll',
+        y: window.scrollY
+      });
+    }, { passive: true });
+
+    // Pipeline scroll already handled in broadcast logic if we add it there
+    const flowContainer = document.getElementById('pipelineFlow');
+    if (flowContainer) {
+      flowContainer.addEventListener('scroll', () => {
+        if (!collabActive) return;
+        broadcast({
+          type: 'pipeline-scroll',
+          scrollLeft: flowContainer.scrollLeft
+        });
+      }, { passive: true });
+    }
+  }
+
+  function broadcast(data) {
+    if (!collabActive) return;
+    connections.forEach(conn => {
+      if (conn.open) conn.send(data);
+    });
+  }
+
+  function updateRemoteCursor(id, x, y, name) {
+    let cursor = remoteCursors[id];
+    if (!cursor) {
+      cursor = document.createElement('div');
+      cursor.className = 'remote-cursor';
+      cursor.innerHTML = `<div class="cursor-dot"></div><div class="cursor-label">${name}</div>`;
+      document.body.appendChild(cursor);
+      remoteCursors[id] = cursor;
+    }
+    cursor.style.left = x + 'px';
+    cursor.style.top = y + 'px';
+  }
+
+  function removeCursor(id) {
+    if (remoteCursors[id]) {
+      remoteCursors[id].remove();
+      delete remoteCursors[id];
+    }
+  }
+
+  function showClickRipple(x, y) {
+    const ripple = document.createElement('div');
+    ripple.className = 'click-ripple';
+    ripple.style.left = x + 'px';
+    ripple.style.top = y + 'px';
+    document.body.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 600);
   }
 
   function updateParticipantCount() {
-    try {
-      if (TogetherJS.running) {
-        // Use TogetherJS.require to access internal modules
-        const peers = TogetherJS.require("peers");
-        const count = peers.getAllPeers().length + 1; // Peers + self
-        const text = document.getElementById('sessionText');
-        if (text) text.textContent = `Live Session: ${count} user${count > 1 ? 's' : ''}`;
-        console.log(`👥 Total participants: ${count}`);
-      }
-    } catch(e) {
-      console.warn('Could not update participant count:', e);
-    }
+    const count = connections.length + 1;
+    const text = document.getElementById('sessionText');
+    if (text) text.textContent = `Live Session: ${count} user${count > 1 ? 's' : ''}`;
   }
 
   function setCollabUI(active) {
@@ -1147,19 +1290,27 @@
     }
   }
 
-  // Initialization check
+  // Handle joins from URL
   window.addEventListener('load', () => {
-    if (typeof TogetherJS === 'undefined') {
-      console.error('❌ TogetherJS failed to load.');
-      const btn = document.querySelector('.collab-btn');
-      if (btn) {
-        btn.style.opacity = '0.5';
-        btn.title = 'TogetherJS library not found';
-      }
-    } else {
-      console.log('✅ TogetherJS script loaded');
+    const roomId = window.location.hash.substring(1);
+    if (roomId && !roomId.startsWith('togetherjs=')) {
+      console.log('🔗 Room ID found in URL, initializing PeerJS...');
+      startCollaboration();
+      
+      // For a real P2P connection, we need to know who to connect to.
+      // In a production app, we'd use a small signaling server.
+      // For this demo, we can simulate the connection if we had a peer list.
     }
   });
+
+  // Modify startSimulation to broadcast
+  const originalStartSimulation = startSimulation;
+  startSimulation = async function() {
+    if (collabActive) {
+      broadcast({ type: 'simulation-start' });
+    }
+    return originalStartSimulation.apply(this, arguments);
+  };
 </script>
 
 </body>
