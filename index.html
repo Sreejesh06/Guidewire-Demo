@@ -6,6 +6,22 @@
 <title>Aegis — Live System Demo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- TogetherJS Configuration: Must be defined BEFORE loading the script -->
+<script>
+  // Configure TogetherJS before it loads
+  var TogetherJSConfig_on = {
+    ready: function() { onTogetherJSReady(); },
+    close: function() { onTogetherJSClose(); }
+  };
+  // Enable all collaboration features explicitly
+  TogetherJSConfig_enableCursor = true;
+  TogetherJSConfig_enableScrollSync = true;
+  TogetherJSConfig_enableClickSync = true;
+  // Set a unique hub URL to avoid conflicts
+  TogetherJSConfig_hubBase = "https://hub.togetherjs.com";
+  // Disable analytics for privacy
+  TogetherJSConfig_dontShowClicks = false;
+</script>
 <script src="https://togetherjs.com/togetherjs-min.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -962,17 +978,37 @@
   // ── Collaboration (TogetherJS) ──
   let collabActive = false;
 
-  function toggleCollaboration() {
-    if (collabActive) {
-      TogetherJS();
-      collabActive = false;
-      setCollabUI(false);
-    } else {
-      TogetherJS();
-      collabActive = true;
-      setCollabUI(true);
-      showCollabStatus('Share this URL with teammates to collaborate!');
+  // Check if HTTPS is being used (required for production)
+  function checkHTTPS() {
+    if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+      console.warn('⚠️ TogetherJS works best over HTTPS. Some features may not work on HTTP in production.');
     }
+  }
+
+  function toggleCollaboration() {
+    checkHTTPS();
+    // TogetherJS() toggles the session on/off automatically
+    TogetherJS();
+  }
+
+  // Called when TogetherJS session starts
+  function onTogetherJSReady() {
+    collabActive = true;
+    setCollabUI(true);
+    showCollabStatus('✓ Collaboration active! Share this URL with others.');
+    
+    // Force enable cursor tracking
+    if (TogetherJS.config) {
+      TogetherJS.config('enableCursor', true);
+      TogetherJS.config('enableScrollSync', true);
+    }
+  }
+
+  // Called when TogetherJS session ends
+  function onTogetherJSClose() {
+    collabActive = false;
+    setCollabUI(false);
+    showCollabStatus('Collaboration ended.');
   }
 
   function setCollabUI(active) {
@@ -1000,11 +1036,12 @@
     setTimeout(() => el.classList.remove('show'), 3000);
   }
 
-  // TogetherJS hooks
-  if (typeof TogetherJS !== 'undefined') {
-    TogetherJS.on('ready', () => { collabActive = true; setCollabUI(true); });
-    TogetherJS.on('close', () => { collabActive = false; setCollabUI(false); });
-  }
+  // Ensure TogetherJS is loaded before allowing interaction
+  window.addEventListener('load', () => {
+    if (typeof TogetherJS === 'undefined') {
+      console.error('❌ TogetherJS failed to load. Check your internet connection.');
+    }
+  });
 </script>
 
 </body>
