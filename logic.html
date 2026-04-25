@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aegis — Technical Narrative</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #fdfcfb;
+            --text: #121212;
+            --accent: #00ff88;
+            --accent-muted: #00b361;
+            --gray: #e0ddd5;
+            --gray-dark: #f0ede8;
+            --font-mono: 'IBM Plex Mono', monospace;
+            --font-serif: 'Playfair Display', serif;
+            --easing: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: var(--font-mono);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Structural Grid */
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(to right, var(--gray) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--gray) 1px, transparent 1px);
+            background-size: 100px 100px;
+            pointer-events: none;
+            opacity: 0.2;
+            z-index: 100;
+        }
+
+        section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10vh 10vw;
+            position: relative;
+            border-bottom: 1px solid var(--gray);
+            text-align: center;
+        }
+
+        section.dark {
+            background: #0a0a0a;
+            color: #e8e4dc;
+        }
+
+        .visual-container {
+            width: 100%;
+            max-width: 1200px;
+            margin-top: 3rem;
+            position: relative;
+        }
+
+        h2 {
+            font-family: var(--font-serif);
+            font-size: clamp(2rem, 5vw, 4rem);
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            line-height: 1;
+        }
+
+        .mono-label {
+            font-size: 0.8rem;
+            background: var(--text);
+            color: var(--accent);
+            padding: 4px 10px;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.1em;
+            font-weight: 600;
+        }
+
+        section.dark .mono-label {
+            background: #e8e4dc;
+            color: #0a0a0a;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1s var(--easing), transform 1s var(--easing);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Key Notes */
+        .key-notes {
+            margin-top: 4rem;
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            max-width: 1000px;
+        }
+
+        .note-item {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: rgba(18, 18, 18, 0.6);
+            font-weight: 500;
+            text-align: left;
+            letter-spacing: 0.05em;
+        }
+
+        section.dark .note-item { color: rgba(232, 228, 220, 0.6); }
+
+        .note-item span {
+            color: var(--accent-muted);
+            margin-right: 8px;
+            font-weight: 600;
+        }
+
+        /* Panel 1: Hex Map */
+        .hex-map {
+            display: grid;
+            grid-template-columns: repeat(12, 40px);
+            gap: 4px;
+            justify-content: center;
+        }
+
+        .hex {
+            width: 40px;
+            height: 46px;
+            background: #eeebe6;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            transition: all 0.6s var(--easing);
+        }
+
+        .hex.active-1 { background: #ffd24d; }
+        .hex.active-2 { background: #ff9933; }
+        .hex.active-3 { background: #ff4d4d; }
+
+        /* Panel 2: Clock & Radar */
+        .weather-visuals {
+            display: flex;
+            gap: 4rem;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .clock-ring {
+            width: 200px;
+            height: 200px;
+            position: relative;
+        }
+
+        .clock-svg {
+            transform: rotate(-90deg);
+        }
+
+        .clock-bg { fill: none; stroke: var(--gray); stroke-width: 4; }
+        .clock-progress { 
+            fill: none; stroke: var(--text); stroke-width: 4; 
+            stroke-dasharray: 565; stroke-dashoffset: 565;
+            transition: stroke-dashoffset 1s linear;
+        }
+
+        .clock-text {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.8rem;
+            font-weight: 600;
+            width: 100%;
+        }
+
+        .radar-circle {
+            width: 300px; height: 300px;
+            border: 1px solid var(--text);
+            border-radius: 50%;
+            position: relative;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .radar-sweep {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: conic-gradient(from 0deg, transparent, rgba(0, 255, 136, 0.2));
+            border-radius: 50%;
+            animation: rotate 4s linear infinite;
+        }
+
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* Panel 3: Fraud Sub-checklist */
+        .pipeline-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .pipeline-line {
+            position: absolute;
+            top: 50%; left: 0; width: 100%; height: 2px;
+            background: var(--gray);
+            z-index: 1;
+        }
+
+        .pipeline-progress {
+            position: absolute;
+            top: 50%; left: 0; width: 0%; height: 2px;
+            background: var(--accent-muted);
+            z-index: 2;
+            transition: width 4s linear;
+        }
+
+        .node {
+            width: 16px; height: 16px; background: var(--bg);
+            border: 2px solid var(--text);
+            border-radius: 50%;
+            z-index: 3;
+            position: relative;
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        .node.active { background: var(--accent); border-color: var(--accent-muted); }
+
+        .node-label {
+            position: absolute; top: 25px; font-size: 0.7rem; font-weight: 600;
+            white-space: nowrap; text-transform: uppercase;
+        }
+
+        .fraud-checklist {
+            position: absolute; top: 60px; left: 50%;
+            transform: translateX(-50%);
+            text-align: left;
+            font-size: 0.7rem;
+            width: 250px;
+            opacity: 0;
+            transition: opacity 0.5s var(--easing);
+        }
+
+        .check-item { margin-bottom: 4px; color: var(--accent-muted); }
+
+        /* Panel 3.5: Terminal */
+        .terminal {
+            width: 100%;
+            max-width: 800px;
+            background: #1a1a1a;
+            border-radius: 4px;
+            padding: 2rem;
+            text-align: left;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #00ff88;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            margin: 0 auto;
+        }
+
+        .term-line { opacity: 0; margin-bottom: 4px; }
+        .term-cursor { display: inline-block; width: 8px; height: 16px; background: #00ff88; animation: blink 1s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* Panel 4: Part-timer logic */
+        .rider-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 3rem;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .rider-table {
+            border: 1px solid var(--text);
+            padding: 1.5rem;
+            text-align: left;
+        }
+
+        .table-row {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--gray);
+            padding: 8px 0;
+            font-size: 0.8rem;
+        }
+
+        .table-row:last-child { border-bottom: none; }
+
+        /* Handoff */
+        #handoff-text span { opacity: 0; display: inline-block; margin-right: 0.3em; }
+        .tag-row span { transform: translateY(20px); opacity: 0; transition: all 0.5s var(--easing); }
+        .tag-row.active span { transform: translateY(0); opacity: 1; }
+
+        /* General styles */
+        .nav-back {
+            position: fixed; top: 2rem; left: 2rem; z-index: 200;
+            color: var(--text); text-decoration: none; font-size: 0.8rem; font-weight: 600;
+            border: 1px solid var(--text); padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(4px);
+        }
+
+        @keyframes ticker {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .ticker-wrap { display: inline-block; animation: ticker 25s linear infinite; }
+
+        @media (max-width: 768px) {
+            .weather-visuals, .rider-comparison { flex-direction: column; align-items: center; }
+            .terminal { font-size: 0.7rem; padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-overlay"></div>
+    <a href="index.html" class="nav-back">← EXIT NARRATIVE</a>
+
+    <!-- Panel 0: Opening -->
+    <section id="panel0">
+        <h1 id="hero-quote" class="reveal" style="font-family: var(--font-serif); font-size: clamp(2rem, 6vw, 6rem); line-height: 1.1;"></h1>
+    </section>
+
+    <!-- Panel 1: Hex Map -->
+    <section id="panel1">
+        <div class="reveal">
+            <span class="mono-label">Spatial Intelligence</span>
+            <h2>ZIP CODES ARE DEAD.</h2>
+            <div class="visual-container">
+                <div class="hex-map" id="hexMap"></div>
+            </div>
+            <div class="key-notes">
+                <div class="note-item"><span>//</span> 0.46 SQ KM WARD FOOTPRINTS</div>
+                <div class="note-item"><span>//</span> HYPER-LOCAL RISK CLUSTERS</div>
+                <div class="note-item"><span>//</span> DYNAMIC STATE PROPAGATION</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Panel 2: 10-Min Cycle -->
+    <section id="panel2">
+        <div class="reveal">
+            <span class="mono-label">Parametric Pulse</span>
+            <h2>THE 10-MINUTE HEARTBEAT.</h2>
+            <div class="weather-visuals visual-container">
+                <div class="clock-ring">
+                    <svg class="clock-svg" width="200" height="200">
+                        <circle class="clock-bg" cx="100" cy="100" r="90" />
+                        <circle class="clock-progress" id="clockProgress" cx="100" cy="100" r="90" />
+                    </svg>
+                    <div class="clock-text">
+                        NEXT POLL IN<br><span id="timer">09:59</span>
+                    </div>
+                </div>
+                <div class="radar-circle">
+                    <div class="radar-sweep"></div>
+                    <div style="font-size: 4rem; font-weight: 600;" id="rainVal">00</div>
+                    <div style="position: absolute; bottom: 60px; font-size: 0.7rem; font-weight: 600;">MM RAINFALL</div>
+                </div>
+            </div>
+            <div class="news-ticker visual-container" style="border-top: 1px solid var(--gray); border-bottom: 1px solid var(--gray); padding: 1rem 0; overflow: hidden; margin-top: 3rem; white-space: nowrap;">
+                <div class="ticker-wrap">
+                    <span style="margin-right: 4rem; font-size: 0.75rem; color: var(--accent-muted);">[NEWSDATA] ROAD CLOSURE: KORAMANGALA 80FT RD</span>
+                    <span style="margin-right: 4rem; font-size: 0.75rem; color: var(--accent-muted);">[NEWSDATA] CIVIL STRIKE DETECTED: CBD ZONE</span>
+                    <span style="margin-right: 4rem; font-size: 0.75rem; color: var(--accent-muted);">[NEWSDATA] TRANSPORT BANDH: WEST SECTOR</span>
+                </div>
+            </div>
+            <div class="key-notes">
+                <div class="note-item"><span>//</span> IMD + OPENWEATHER QUORUM</div>
+                <div class="note-item"><span>//</span> NEWSDATA API: BANDHS & STRIKES</div>
+                <div class="note-item"><span>//</span> 60MM THRESHOLD → HALT</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Panel 3: Payout Flow + Fraud sub-checklist -->
+    <section id="panel3">
+        <div class="reveal" style="width: 100%;">
+            <span class="mono-label">Execution Pipeline</span>
+            <h2>NESTED SAFETY LAYERS.</h2>
+            <div class="pipeline-container visual-container">
+                <div class="pipeline-line"></div>
+                <div class="pipeline-progress" id="flowProgress"></div>
+                
+                <div class="node" id="n1"><div class="node-label">ZONE HALTS</div></div>
+                <div class="node" id="n2"><div class="node-label">IDENTIFY</div></div>
+                <div class="node" id="n3">
+                    <div class="node-label">FRAUD CHECK</div>
+                    <div class="fraud-checklist" id="fraudChecklist">
+                        <div class="check-item">→ DUPLICATE EVENT CHECK</div>
+                        <div class="check-item">→ GPS VERIFIED AGAINST ZONE</div>
+                        <div class="check-item">→ RIDE TIMESTAMP MATCHED</div>
+                        <div class="check-item">→ COLLISION CHECK</div>
+                    </div>
+                </div>
+                <div class="node" id="n4"><div class="node-label">CALCULATE</div></div>
+                <div class="node" id="n5"><div class="node-label">PAYOUT</div></div>
+            </div>
+            <div class="key-notes" style="margin-top: 8rem;">
+                <div class="note-item"><span>//</span> RAZORPAYX UPI TRANSFER</div>
+                <div class="note-item"><span>//</span> SUB-SEC LATENCY</div>
+                <div class="note-item"><span>//</span> NO HUMAN INTERVENTION</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Panel 3.5: Standalone Exactly-Once Beat -->
+    <section id="panel3-5" class="dark">
+        <div class="reveal" style="width: 100%;">
+            <span class="mono-label">Reliability Engineering</span>
+            <h2 style="color: #fff;">EXACTLY-ONCE GUARANTEE.</h2>
+            <div class="terminal visual-container" id="terminal">
+                <!-- Lines will be injected -->
+            </div>
+            <p style="margin-top: 3rem; font-size: 0.9rem; color: rgba(255,255,255,0.6);">Simulated crash recovery: PayoutIdempotencyKey ensures rider is never double-paid.</p>
+        </div>
+    </section>
+
+    <!-- Panel 4: Solvency + Part-timer Logic -->
+    <section id="panel4">
+        <div class="reveal">
+            <span class="mono-label">Capital Integrity</span>
+            <h2>THE POOL IS PROTECTED.</h2>
+            <div class="solvency-bar visual-container" style="display:flex; height: 60px; border: 2px solid var(--text); overflow: hidden;">
+                <div class="seg" style="width: 60%; background: var(--accent); border-right: 2px solid var(--text); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 600;">CORE RISK</div>
+                <div class="seg" style="width: 30%; background: #00cc6e; border-right: 2px solid var(--text); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 600;">EMERGENCY</div>
+                <div class="seg" style="width: 10%; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 600;">FEE</div>
+            </div>
+
+            <div class="rider-comparison visual-container">
+                <div class="rider-table">
+                    <div class="mono-label" style="background: var(--text); color: var(--bg);">FULL-TIME RIDER</div>
+                    <div class="table-row"><span>Frequency</span> <span>5+ days/wk</span></div>
+                    <div class="table-row"><span>Premium</span> <span>₹150</span></div>
+                    <div class="table-row"><span>Payout</span> <span>Standard</span></div>
+                </div>
+                <div class="rider-table" style="border-color: var(--accent-muted);">
+                    <div class="mono-label" style="background: var(--accent-muted); color: #fff;">PART-TIME RIDER</div>
+                    <div class="table-row"><span>Frequency</span> <span>2 days/wk</span></div>
+                    <div class="table-row"><span>Premium</span> <span>₹150</span></div>
+                    <div class="table-row"><span>Payout</span> <span style="color: var(--accent-muted); font-weight: 700;">+Adjusted Ratio</span></div>
+                </div>
+            </div>
+            <p class="reveal" style="margin-top: 2rem; font-size: 0.8rem; font-weight: 600;">AUTO-DETECTED BY ACTUARIAL MODEL. NO MANUAL RULES.</p>
+        </div>
+    </section>
+
+    <!-- Panel 5: DPDP Contrast -->
+    <section id="panel5">
+        <div class="reveal">
+            <span class="mono-label">Regulatory Ethics</span>
+            <h2 style="font-size: 2.5rem; margin-bottom: 4rem;">"Most apps show one checkbox.<br>Aegis shows two screens."</h2>
+            
+            <div class="vault-grid visual-container" style="display:grid; grid-template-columns: 1fr 1fr; gap: 2rem; max-width: 800px; margin: 0 auto;">
+                <div class="vault-box" style="border: 2px solid var(--text); padding: 3rem;">
+                    <div class="v-status" id="v1" style="font-size: 2rem; font-weight: 600; margin-bottom: 1rem;">LOCKED</div>
+                    <div class="mono-label">GPS CONSENT</div>
+                </div>
+                <div class="vault-box" style="border: 2px solid var(--text); padding: 3rem;">
+                    <div class="v-status" id="v2" style="font-size: 2rem; font-weight: 600; margin-bottom: 1rem;">LOCKED</div>
+                    <div class="mono-label">UPI CONSENT</div>
+                </div>
+            </div>
+            <p class="reveal" style="margin-top: 3rem; font-size: 0.9rem;">DPDP 2023: Compliance as a product differentiator.</p>
+        </div>
+    </section>
+
+    <!-- Panel 6: Handoff -->
+    <section id="panel6">
+        <div class="reveal">
+            <h2 id="handoff-text" style="max-width: 900px; font-size: clamp(2rem, 4vw, 4rem); margin-bottom: 6rem;">
+                The financial logic is airtight. The intelligence powering risk scores and fraud detection underneath — that's next.
+            </h2>
+            
+            <div class="tag-row" id="finalTags" style="display: flex; gap: 2rem; justify-content: center; font-size: 0.8rem; font-weight: 600; color: rgba(18,18,18,0.5); margin-bottom: 4rem;">
+                <span>H3 HEXAGONS</span>
+                <span>RAZORPAYX</span>
+                <span>IDEMPOTENCY</span>
+                <span>SOLVENCY ENGINE</span>
+                <span>DPDP 2023</span>
+            </div>
+            
+            <div style="width: 100%; height: 1px; background: var(--gray); margin-bottom: 1rem;"></div>
+            <div style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.2em; opacity: 0.6;">
+                NEXT — RISK INTELLIGENCE
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Hero
+        const quote = "Insurance is not an app. It's a promise backed by logic.";
+        const heroH1 = document.getElementById('hero-quote');
+        quote.split('').forEach((char, i) => {
+            const span = document.createElement('span');
+            span.textContent = char;
+            span.style.opacity = '0';
+            span.style.display = 'inline-block';
+            if (char === ' ') span.style.width = '0.3em';
+            span.style.transition = `opacity 0.1s ease ${i * 0.03}s`;
+            heroH1.appendChild(span);
+            setTimeout(() => span.style.opacity = '1', 100);
+        });
+
+        // Hex Map
+        const hexMap = document.getElementById('hexMap');
+        for(let i=0; i<48; i++) {
+            const hex = document.createElement('div');
+            hex.className = 'hex';
+            hexMap.appendChild(hex);
+        }
+
+        // Observer
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    if (entry.target.id === 'panel1') animateMap();
+                    if (entry.target.id === 'panel2') startCycle();
+                    if (entry.target.id === 'panel3') startPipeline();
+                    if (entry.target.id === 'panel3-5') runTerminal();
+                    if (entry.target.id === 'panel5') unlockVaults();
+                    if (entry.target.id === 'panel6') runHandoff();
+                }
+            });
+        }, { threshold: 0.3 });
+
+        document.querySelectorAll('section, .reveal').forEach(el => observer.observe(el));
+
+        function animateMap() {
+            const hexes = document.querySelectorAll('.hex');
+            hexes.forEach((hex, i) => {
+                setTimeout(() => {
+                    if (i % 9 === 0) hex.classList.add('active-3');
+                    else if (i % 7 === 0) hex.classList.add('active-2');
+                    else if (i % 5 === 0) hex.classList.add('active-1');
+                }, i * 20);
+            });
+        }
+
+        function startCycle() {
+            const ring = document.getElementById('clockProgress');
+            const timer = document.getElementById('timer');
+            const rain = document.getElementById('rainVal');
+            
+            ring.style.strokeDashoffset = '0';
+            
+            let s = 599;
+            const tInt = setInterval(() => {
+                s--;
+                const m = Math.floor(s/60);
+                const sec = s%60;
+                timer.textContent = `${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+                if (s <= 0) clearInterval(tInt);
+            }, 1000);
+
+            let r = 0;
+            const rInt = setInterval(() => {
+                r++;
+                rain.textContent = r.toString().padStart(2, '0');
+                if (r >= 82) clearInterval(rInt);
+            }, 30);
+        }
+
+        function startPipeline() {
+            const progress = document.getElementById('flowProgress');
+            const nodes = document.querySelectorAll('.node');
+            const checklist = document.getElementById('fraudChecklist');
+            
+            progress.style.width = '100%';
+            nodes.forEach((n, i) => {
+                setTimeout(() => {
+                    n.classList.add('active');
+                    if (n.id === 'n3') checklist.style.opacity = '1';
+                }, i * 800);
+            });
+        }
+
+        function runTerminal() {
+            const term = document.getElementById('terminal');
+            const lines = [
+                "[10:42:01] Zone HALTED — MH-04-HEX-7734",
+                "[10:42:03] PayoutIdempotencyKey: PIK-7734-938472 → STORED",
+                "[10:42:04] Transfer initiated → ₹420 → Ravi K.",
+                "[10:42:04] <span style='color:#ff4d4d'>SERVER CRASH — FAIL-CLOSED TRIGGERED</span>",
+                "[10:42:09] System restart in progress...",
+                "[10:42:10] Checking PayoutIdempotencyKey: PIK-7734-938472",
+                "[10:42:10] <span style='color:#ffd24d'>KEY ALREADY EXISTS → TRANSFER SKIPPED</span>",
+                "[10:42:10] Ravi K. not double-paid. System stable."
+            ];
+
+            term.innerHTML = '';
+            lines.forEach((l, i) => {
+                const div = document.createElement('div');
+                div.className = 'term-line';
+                div.innerHTML = l;
+                term.appendChild(div);
+                setTimeout(() => div.style.opacity = '1', i * 800);
+            });
+            const cursor = document.createElement('div');
+            cursor.className = 'term-cursor';
+            term.appendChild(cursor);
+        }
+
+        function unlockVaults() {
+            const v1 = document.getElementById('v1');
+            const v2 = document.getElementById('v2');
+            setTimeout(() => { v1.textContent = 'SECURED'; v1.parentElement.style.borderColor = 'var(--accent-muted)'; v1.style.color = 'var(--accent-muted)'; }, 600);
+            setTimeout(() => { v2.textContent = 'SECURED'; v2.parentElement.style.borderColor = 'var(--accent-muted)'; v2.style.color = 'var(--accent-muted)'; }, 1200);
+        }
+
+        function runHandoff() {
+            const text = document.getElementById('handoff-text');
+            const words = text.textContent.trim().split(/\s+/);
+            text.innerHTML = '';
+            words.forEach((w, i) => {
+                const span = document.createElement('span');
+                span.textContent = w + ' ';
+                span.style.transition = `opacity 0.8s ease ${i * 0.1}s`;
+                text.appendChild(span);
+                setTimeout(() => span.style.opacity = '1', 50);
+            });
+            
+            setTimeout(() => {
+                document.getElementById('finalTags').classList.add('active');
+            }, words.length * 100 + 500);
+        }
+    </script>
+</body>
+</html>
