@@ -608,14 +608,17 @@
 <!-- ── Header ── -->
 <header style="background: #fff; border-bottom: 1px solid var(--gray-200); height: 72px;">
   <div class="logo">
-    <div class="logo-icon" style="border-radius: 0; background: #000;">A</div>
-    <div>
-      <div class="logo-text" style="font-family: 'IBM Plex Mono'; font-weight: 600; letter-spacing: 0.1em;">AEGIS</div>
-      <div class="logo-sub" style="text-transform: uppercase; font-size: 10px; font-weight: 600; color: var(--gray-500);">Parametric Stack</div>
-    </div>
+    <a href="home.html" style="text-decoration: none; display: flex; align-items: center; gap: 12px; color: inherit;">
+      <img src="logo.png" alt="Aegis Logo" style="width: 32px; height: 32px;" class="nav-logo">
+      <div>
+        <div class="logo-text" style="font-family: 'IBM Plex Mono'; font-weight: 600; letter-spacing: 0.1em;">AEGIS</div>
+        <div class="logo-sub" style="text-transform: uppercase; font-size: 10px; font-weight: 600; color: var(--gray-500);">Parametric Stack</div>
+      </div>
+    </a>
   </div>
   <nav style="display: flex; gap: 3rem; margin-left: 4rem;">
-    <a href="logic.html" style="text-decoration: none; color: var(--gray-500); font-family: 'IBM Plex Mono'; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; transition: var(--transition);">Insurance Logic</a>
+    <a href="actuary.html" style="text-decoration: none; color: var(--gray-500); font-family: 'IBM Plex Mono'; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; transition: var(--transition);">Actuarial Intelligence</a>
+    <a href="arch.html" style="text-decoration: none; color: var(--gray-500); font-family: 'IBM Plex Mono'; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; transition: var(--transition);">System Architecture</a>
     <a href="#" style="text-decoration: none; color: #000; font-family: 'IBM Plex Mono'; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #000; padding-bottom: 4px;">System Demo</a>
   </nav>
   <div class="header-right">
@@ -634,7 +637,10 @@
   <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem; border-bottom: 1px solid var(--gray-200); padding-bottom: 1.5rem;">
     <div>
       <h1 class="page-title" style="font-family: 'DM Sans'; font-weight: 700; font-size: 32px; letter-spacing: -0.03em;">System Demo — Event Pipeline</h1>
-      <p class="page-sub" style="font-family: 'IBM Plex Mono'; text-transform: uppercase; font-size: 11px; color: var(--gray-500); font-weight: 600;">Real-time parametric payout engine · Koramangala Zone · Mumbai Storm</p>
+      <p class="page-sub" style="font-family: 'IBM Plex Mono'; text-transform: uppercase; font-size: 11px; color: var(--gray-500); font-weight: 600; margin-bottom: 1rem;">Real-time parametric payout engine · Koramangala Zone · Mumbai Storm</p>
+      <a href="actuary.html" style="display: inline-block; text-decoration: none; background: var(--emerald-600); color: #fff; font-family: 'IBM Plex Mono'; font-size: 11px; font-weight: 700; text-transform: uppercase; padding: 10px 20px; letter-spacing: 0.1em; transition: var(--transition);">
+        Explore Actuarial Intelligence →
+      </a>
     </div>
   </div>
 
@@ -669,9 +675,14 @@
         <div class="pipeline-title" style="font-family: 'IBM Plex Mono'; text-transform: uppercase; letter-spacing: 0.1em; font-size: 14px;">Event Processing Pipeline</div>
         <div class="pipeline-hint" style="font-family: 'IBM Plex Mono'; font-size: 10px; color: var(--gray-500);">Real-time parametric payout orchestration</div>
       </div>
-      <button class="start-btn" id="startBtn" onclick="startSimulation()" style="border-radius: 0; background: #000; font-family: 'IBM Plex Mono'; font-size: 11px; text-transform: uppercase; font-weight: 600; padding: 12px 24px;">
-        Start Simulation
-      </button>
+      <div style="display: flex; gap: 1rem;">
+        <a href="actuary.html" style="text-decoration: none; border: 1px solid #000; color: #000; font-family: 'IBM Plex Mono'; font-size: 11px; text-transform: uppercase; font-weight: 600; padding: 12px 24px; display: flex; align-items: center; justify-content: center; transition: var(--transition);">
+          Actuarial Intelligence
+        </a>
+        <button class="start-btn" id="startBtn" onclick="startSimulation()" style="border-radius: 0; background: #000; font-family: 'IBM Plex Mono'; font-size: 11px; text-transform: uppercase; font-weight: 600; padding: 12px 24px;">
+          Start Simulation
+        </button>
+      </div>
     </div>
 
     <div class="pipeline-flow" id="pipelineFlow" style="gap: 12px; overflow-x: auto; padding-bottom: 1rem;">
@@ -826,6 +837,15 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Deep Dive CTA -->
+  <div style="margin-top: 4rem; padding: 4rem; border: 1px solid var(--gray-200); text-align: center; background: #fafafa;">
+    <div style="font-family: 'IBM Plex Mono'; text-transform: uppercase; font-size: 11px; color: var(--gray-500); font-weight: 600; margin-bottom: 1.5rem;">Mathematical & Intelligence Deep Dive</div>
+    <h2 style="font-family: 'DM Sans'; font-size: 28px; font-weight: 700; margin-bottom: 2rem;">Explore the Actuarial Core of Aegis</h2>
+    <a href="actuary.html" style="display: inline-block; background: #000; color: #fff; text-decoration: none; padding: 16px 32px; font-family: 'IBM Plex Mono'; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; transition: var(--transition);">
+      View Actuarial Logic →
+    </a>
   </div>
 </main>
 
